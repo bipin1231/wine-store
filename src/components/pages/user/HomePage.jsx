@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Wine, Search, ShoppingCart, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import FeaturedCollection from './reusable/FeaturedCollection';
-import Arrivals from './reusable/Arrivals';
+import FeaturedCollection from '../../reusable/FeaturedCollection';
+import Arrivals from '../../reusable/Arrivals';
 import { useSelector } from 'react-redux';
 
 const Button = ({ children, variant, size, className, ...props }) => (

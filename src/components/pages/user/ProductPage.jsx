@@ -2,10 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useSelector,useDispatch } from "react-redux";
-import { addToCart } from "../redux/cartSlice";
+import { addToCart } from "../../../redux/cartSlice";
 import { Button } from "@nextui-org/button";
+
+import api from "../../../api/axiosInstance";
 export default function ProductPage() {
 
+  const [apiProduct,setApiProduct]=useState([]);
+
+  useEffect(()=>{
+    api.get('/product')
+    .then(res=> {
+      console.log(res);
+      
+      setApiProduct(res.data)})
+    .catch(err=>console.error(err));
+  },[]);
 
   const [quantity, setQuantity] = useState(1);
   const [productDetails,setProductDetails]=useState();

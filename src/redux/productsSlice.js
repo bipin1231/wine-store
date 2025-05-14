@@ -1,13 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { collection, products } from '../assets/assets';
+import { collection, products,categories } from '../assets/assets';
 // Sample initial product data for your wine store
 const initialProducts = products
 const itemCollection=collection
+// const itemCategories=categories
 const productsSlice = createSlice({
   name: 'products',
   initialState: {
     items: initialProducts,
     collection:itemCollection,
+    categories,
     loading: false,
     error: null,
   },

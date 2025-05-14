@@ -1,8 +1,19 @@
 import React from 'react';
-import { Button } from "@nextui-org/react";
+
 import { useDispatch } from 'react-redux';
 import { addToCart } from "../../redux/cartSlice"; 
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from "framer-motion"
+import { Card,Button,CardBody,Image } from '@nextui-org/react';
+
+
+
+const Badge = ({ children, className = "" }) => (
+  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 ${className}`}>
+    {children}
+  </span>
+);
+
 
 function Products({ product }) {
   const dispatch = useDispatch();
@@ -11,39 +22,86 @@ function Products({ product }) {
     dispatch(addToCart({ id: product.id, quantity: 1 }));
     console.log("Added to cart");
   };
+console.log(product);
 
   return (
-    <div 
-      key={product.id} 
-      className="group relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group-hover:scale-105"
-    >
-      {/* Product Image */}
-      <Link to={`/product-page/${product.id}`}>
-        <img
-          src={product.image}
-          alt={product.name}
-          className="object-cover w-full h-[300px] transition-transform group-hover:scale-105"
-        />
+    // <div 
+    //   key={product.id} 
+    //   className="group relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group-hover:scale-105"
+    // >
+    //   {/* Product Image */}
+      // <Link to={`/product-page/${product.id}`}>
+      //   <img
+      //     src={product.image}
+      //     alt={product.name}
+      //     className="object-cover w-full h-[300px] transition-transform group-hover:scale-105"
+      //   />
      
 
-      {/* Overlay on Hover */}
-      <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-50" />
+    //   {/* Overlay on Hover */}
+    //   <div className="absolute inset-0 bg-black bg-opacity-40 transition-opacity group-hover:bg-opacity-50" />
 
-      {/* Product Details */}
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <h3 className="text-lg font-semibold text-white">{product.name}</h3>
-        <p className="text-sm text-gray-300">{product.type}</p>
-        <p className="mt-2 text-sm font-bold text-white">${product.price.toFixed(2)}</p>
-      </div>
-      </Link>
-      {/* Add to Cart Button */}
-      <Button 
-     onClick={addItemToCart}
-      className="absolute bg-gray-400 rounded-md top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-                  Add to Cart
-                </Button>
+    //   {/* Product Details */}
+    //   <div className="absolute inset-x-0 bottom-0 p-4">
+    //     <h3 className="text-lg font-semibold text-white">{product.name}</h3>
+    //     <p className="text-sm text-gray-300">{product.type}</p>
+    //     <p className="mt-2 text-sm font-bold text-white">${product.price.toFixed(2)}</p>
+    //   </div>
+    //   </Link>
+    //   {/* Add to Cart Button */}
+    //   <Button 
+    //  onClick={addItemToCart}
+    //   className="absolute bg-gray-400 rounded-md top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
+    //               Add to Cart
+    //             </Button>
 
-    </div>
+    // </div>
+
+
+    <Link to={`/product-page/${product.id}`}>
+     
+        <motion.div
+          key={product.id}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0 }
+          }}
+        >
+          <Card className="overflow-hidden">
+            <motion.div 
+              className="relative aspect-square cursor-pointer"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            >
+             <Image
+         
+              src={product.image}
+                alt={product.name}
+                className="object-cover w-full h-[300px] transition-transform group-hover:scale-105"
+              
+              />
+            </motion.div>
+            <CardBody className="p-4">
+              <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
+              <p className="text-sm text-muted-foreground mb-2">{product.type}</p>
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-bold text-lg">${product.price}</span>
+                <Badge variant="secondary">
+                  ★ {product.rating}
+                </Badge>
+              </div>
+              <Button className="w-full" onClick={ addItemToCart}>
+                Add to Cart
+              </Button>
+            </CardBody>
+          </Card>
+        </motion.div>
+
+
+        </Link>
+
+
+
   );
 }
 

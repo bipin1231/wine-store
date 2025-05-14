@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Wine, Search, ShoppingCart, User } from 'lucide-react';
 import {Button, ButtonGroup} from "@nextui-org/button"
 import { Input } from "@nextui-org/input"
+import { useSelector } from 'react-redux';
 
 export default function Header() {
-  const [searchQuery,setSearchQuery]=useState();
+  const [searchQuery,setSearchQuery]=useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
-
-  const handleSearch=(e)=>{
+  const [filteredProducts,setFilteredProducts]=useState([])
+  const [showList,setshowList]=useState(false)
+  const productData=useSelector(state=>state.products.items)
+    const handleSearch=(e)=>{
     setSearchQuery(e.target.value)
     console.log(searchQuery)
     
   }
+  useEffect(()=>{
+
+if(searchQuery){
+const filteredProduct=productData.filter(p=>
+  p.name.toLowerCase().includes(searchQuery) ||
+  p.description.toLowerCase().includes(searchQuery) ||
+  p.type.toLowerCase().includes(searchQuery)
+)
+if(filteredProduct) {setFilteredProducts(filteredProduct)
+
+console.log(filteredProduct);
+}
+}
+  },[searchQuery])
 
   return (
     <header className="xl:px-8 bg-white bg-opacity-10 sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-md supports-[backdrop-filter]:bg-background/80">
@@ -46,7 +63,7 @@ export default function Header() {
             transition={{ duration: 0.4, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }} // To handle the width animation cleanly
           >
-
+<form action="" >
         <Input
           classNames={{
             base: "max-w-full sm:max-w-[10rem] h-10",
@@ -57,11 +74,11 @@ export default function Header() {
           placeholder="Type to search..."
           size="sm"
          value={searchQuery}
-         onChange={(e)=>setSearchQuery(e.target.value)} 
+         onChange={(e)=>setSearchQuery(e.target.value.toLowerCase())} 
          type="search"
           
         />
-
+</form>
             {/* <Input
               type="search"
               placeholder="Search collections..."
@@ -70,7 +87,10 @@ export default function Header() {
             {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /> */}
           </motion.form>
 
-          <Button variant="ghost" size="icon" onClick={() => setIsSearchActive(!isSearchActive)}>
+          <Button variant="ghost" size="icon" onClick={() => {setIsSearchActive(!isSearchActive)
+            setshowList(!showList)
+            setSearchQuery(null)
+          }}>
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>
@@ -87,6 +107,29 @@ export default function Header() {
           </Button>
         </div>
       </div>
+      {showList && searchQuery && (
+        <div className="absolute bg-white shadow-lg w-full p-4">
+          {filteredProducts.length > 0 ? (
+            <ul>
+              {filteredProducts.map(product => (
+                <li key={product.id} className="py-2">
+                  <Link to={`/product-page/${product.id}`} 
+                  onClick={()=>{setshowList(false) 
+                    setSearchQuery("")
+                    setIsSearchActive(!isSearchActive)
+                  }}
+                  className=" flex hover:underline items-center space-x-4">
+                  <img src={product.image} className='w-10 h-10' />
+                    {product.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No results found for "{searchQuery}".</p>
+          )}
+        </div>
+      )}
     </header>
   );
 }

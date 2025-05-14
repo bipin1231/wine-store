@@ -16,7 +16,8 @@ export const products=[
       description:"lkdasdkasdalk",
       price:1000,
       image:[black_label],
-      type:"whisky",
+      type:"Whisky",
+      origin:"Imported"
 
 },
   {
@@ -25,8 +26,8 @@ export const products=[
       description:"lkdasdkasdalk",
       price:1000,
       image:[red_label],
-      type:"whisky",
-
+      type:"Whisky",
+      origin:"Imported"
 },
   {
       id:"3",
@@ -35,7 +36,7 @@ export const products=[
       price:1900,
       image:[jp_chenet],
       type:"Red Wine",
-
+      origin:"Imported"
 },
 ]
 
@@ -46,4 +47,22 @@ export const collection=[
   { id:4,name:"Vodka",description:"Smooth and Creamy",image:vodka,count:21},
   { id:5,name:"Rum",description:"Smooth and Creamy",image:rum,count:21},
   { id:6,name:"Beer",description:"Smooth and Creamy",image:beer,count:21},
+]
+
+export const categories=[
+  {
+    id:1,
+    name:"Wine",
+    subCategories:["Red Wine","White Wine","Imported","Domestic"]
+  },
+  {
+    id:2,
+    name:"Whisky",
+    subCategories:["Imported","Domestic"]
+  },
+  {
+    id:2,
+    name:"Beer",
+    subCategories:["Imported","Domestic"]
+  },
 ]

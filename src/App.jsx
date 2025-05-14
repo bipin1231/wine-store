@@ -1,32 +1,33 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { Route,RouterProvider,createBrowserRouter,createRoutesFromElements } from 'react-router-dom'
+import { Route, Routes, RouterProvider, BrowserRouter, createRoutesFromElements } from 'react-router-dom'
+import UserLayout from './components/layout/UserLayout'
+import UserRoutes from './components/routes/UserRoutes'
+import AdminRoutes from './components/routes/AdminRoutes'
 
-import WineStore from './components/WineStore'
-import Layout from './Layout'
-
-import HomePage from './components/HomePage'
 
 function App() {
 
-  const router=createBrowserRouter(
-    createRoutesFromElements(
-      <Route path='/' element={<Layout/>}>
-      <Route path='/' element={<HomePage/>}/>
-
-        
-
-        </Route>
-
-    )
-  )
+  const userType = "admin"
 
   return (
+    <BrowserRouter>
+      <Routes>
+{
+  userType==="admin"?(
 
-  <RouterProvider router={router}/>
-     
+      <Route path='/*' element={<AdminRoutes />} />
+  ):(
+      <Route path='/*' element={<UserRoutes />} />
+  )
+}      
+
+      </Routes>
+    </BrowserRouter>
+
+
 
 
   )
