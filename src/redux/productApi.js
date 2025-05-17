@@ -1,8 +1,8 @@
 import {createApi,fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-
+import { baseQueryWithAuth } from './baseQuery';
 export const productApi=createApi({
   reducerPath:"productApi",
-  baseQuery:fetchBaseQuery({baseUrl:'http://localhost:9090'}),
+  baseQuery:baseQueryWithAuth,
   endpoints:builder=>({
     getProducts:builder.query({
       query:()=>'product',
@@ -24,8 +24,25 @@ export const productApi=createApi({
       }
     }
     }),
+    updateProductSize:builder.mutation({
+      query: ({id,newSize})=>{
+        const formData=new FormData();
+
+        formData.append("product",new Blob([JSON.stringify(newProduct.product)], { type: "application/json" }))
+
+        newProduct.images.forEach(file => {
+          formData.append("images",file)
+          
+        });
+        return{
+        url:`/product/${id}`,
+        method:'PUT',
+        body:formData,
+      }
+    }
+    }),
   })
 
 })
 
-export const {useGetProductsQuery,useAddProductMutation}=productApi;
+export const {useGetProductsQuery,useAddProductMutation,useUpdateProductSizeMutation}=productApi;

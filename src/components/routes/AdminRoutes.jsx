@@ -7,6 +7,7 @@ import ManageProducts from '../pages/user/admin/ManageProducts'
 import AddProduct from '../pages/user/admin/AddProduct'
 import LoginPage from '../loginSignupPages/LoginPage'
 import OAuth2Callback from '../loginSignupPages/OAuth2Callback'
+import AuthContainer from '../auth/AuthContainer'
 function AdminRoutes() {
 
   return (
@@ -20,7 +21,7 @@ function AdminRoutes() {
     <Route path='product-lists' element={<ProductLists/>}/>
     <Route path='manage-products' element={<ManageProducts/>}/>
     <Route path='add-products' element={<AddProduct/>}/>
-    <Route path='login' element={<LoginPage/>}/>
+    <Route path='login' element={<AuthContainer/>}/>
     <Route path='/oauth2/callback/' element={<OAuth2Callback/>}/>
 
     
