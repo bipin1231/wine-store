@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useGetProductsQuery } from '../../../../redux/productApi';
+import { useGetProductsQuery,useUpdateProductSizeMutation } from '../../../../redux/productApi';
 
 function EditableCell({ value, onSave }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -49,6 +49,7 @@ function EditableCell({ value, onSave }) {
 
 export default function ManageProducts() {
   const { data, error, isLoading } = useGetProductsQuery();
+  const [updateSize, { isLoading: isUpdateSizeLoading }]=useUpdateProductSizeMutation();
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [categories, setCategories] = useState(['All']);
@@ -136,20 +137,24 @@ export default function ManageProducts() {
         <EditableCell
           key={field}
           value={size[field]}
-          onSave={(newValue) => {
-            const updatedProducts = products.map((p) => {
-              if (p.id !== product.id) return p;
+          onSave={async (newValue) => {
+
+            console.log(field,newValue);
+            const updatedSizes={...size,[field]:newValue}
+            console.log("updatedsizes",updatedSizes);
+            
           
-              // Deep copy the productSize array
-              const updatedSizes = p.productSize.map((s, i) =>
-                s.id === size.id ? { ...s, [field]: newValue } : s
-              );
+              try {
+            const res= await updateSize({id:updatedSizes.id,newSize:updatedSizes});
+            console.log("data sending");
+            
+            } catch (error) {
+              console.log("error",error);
+              
+            }
           
-              return { ...p, productSize: updatedSizes };
-            });
-          
-            setProducts(updatedProducts);
-            // TODO: Add API call here to persist changes
+           
+        
           }}
         />
       ))}

@@ -26,18 +26,11 @@ export const productApi=createApi({
     }),
     updateProductSize:builder.mutation({
       query: ({id,newSize})=>{
-        const formData=new FormData();
-
-        formData.append("product",new Blob([JSON.stringify(newProduct.product)], { type: "application/json" }))
-
-        newProduct.images.forEach(file => {
-          formData.append("images",file)
-          
-        });
+  
         return{
-        url:`/product/${id}`,
+        url:`/product/update-size/${id}`,
         method:'PUT',
-        body:formData,
+        body:newSize,
       }
     }
     }),
