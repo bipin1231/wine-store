@@ -15,6 +15,7 @@ import {
 import api from '../../../api/axiosInstance';
 
 import { useGetProductsQuery } from '../../../redux/productApi';
+import {useGetCategoryQuery} from '../../../redux/categoryApi';
 
 import CategoryDropdown from '../../reusable/CategoryDropdown';
 
@@ -55,7 +56,11 @@ const ProductCatalog = () => {
 
   const {data,error,isLoading}=useGetProductsQuery();
 
+   const {data:category,isLoading:isCategoryLoading}=useGetCategoryQuery();
+
   console.log("fetched datataf",data);
+
+  console.log("fetched category",category);
 
   
   
@@ -82,25 +87,25 @@ const ProductCatalog = () => {
   const [sortOrder, setSortOrder] = useState('name-a-z');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const { category } = useParams()
 
 
 
-  useEffect(() => {
-    if (category) filterProducts(category || "All Products");
-  }, [])
-  console.log(product);
+
+  // useEffect(() => {
+  //   if (category) filterProducts(category || "All Products");
+  // }, [])
+  // console.log(product);
 
 
-  const filterProducts = (cat) => {
+  // const filterProducts = (cat) => {
 
-    setActiveCategory(cat);
-    if (cat === 'All Products') {
-      setFilteredProducts(product);
-    } else {
-      setFilteredProducts(product.filter(p => p.type.toLowerCase().includes(cat.toLowerCase()) || p.origin.toLowerCase().includes(cat.toLowerCase())));
-    }
-  };
+  //   setActiveCategory(cat);
+  //   if (cat === 'All Products') {
+  //     setFilteredProducts(product);
+  //   } else {
+  //     setFilteredProducts(product.filter(p => p.type.toLowerCase().includes(cat.toLowerCase()) || p.origin.toLowerCase().includes(cat.toLowerCase())));
+  //   }
+  // };
 
 
 
@@ -202,6 +207,15 @@ const ProductCatalog = () => {
                 product={product}
               />
             ))} */}
+
+
+                        { !isLoading ? ( data.map((product) => (
+
+              <Products
+                id={product.id}
+                product={product}
+              />
+            ))): "Loading"}  
           </motion.div>
         </AnimatePresence>
 

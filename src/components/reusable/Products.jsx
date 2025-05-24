@@ -73,9 +73,11 @@ console.log(product);
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.3 }}
             >
+
+             
              <Image
          
-              src={product.image}
+              src={`http://localhost:8080/images/${product.imageUrl[0]}`}
                 alt={product.name}
                 className="object-cover w-full h-[300px] transition-transform group-hover:scale-105"
               
@@ -83,9 +85,9 @@ console.log(product);
             </motion.div>
             <CardBody className="p-4">
               <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
-              <p className="text-sm text-muted-foreground mb-2">{product.type}</p>
+              <p className="text-sm text-muted-foreground mb-2">{product.categoryName}</p>
               <div className="flex justify-between items-center mb-4">
-                <span className="font-bold text-lg">${product.price}</span>
+                {/* <span className="font-bold text-lg">${product.price}</span> */}
                 <Badge variant="secondary">
                   ★ {product.rating}
                 </Badge>

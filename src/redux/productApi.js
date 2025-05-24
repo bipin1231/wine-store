@@ -7,6 +7,9 @@ export const productApi=createApi({
     getProducts:builder.query({
       query:()=>'product',
     }),
+    getProductsById:builder.query({
+      query:(productId)=>`product/${productId}`,
+    }),
     addProduct:builder.mutation({
       query: newProduct=>{
         const formData=new FormData();
@@ -38,4 +41,4 @@ export const productApi=createApi({
 
 })
 
-export const {useGetProductsQuery,useAddProductMutation,useUpdateProductSizeMutation}=productApi;
+export const {useGetProductsQuery,useAddProductMutation,useUpdateProductSizeMutation,useGetProductsByIdQuery}=productApi;
