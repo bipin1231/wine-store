@@ -100,11 +100,13 @@ console.log(filteredProduct);
             <span className="sr-only">Cart</span>
         
           </Link>
-
-          <Button variant="ghost" size="icon">
+<Link to={'/login'}  variant="ghost" size="icon">
+          
             <User className="h-5 w-5" />
             <span className="sr-only">Account</span>
-          </Button>
+          
+
+          </Link>
         </div>
       </div>
       {showList && searchQuery && (

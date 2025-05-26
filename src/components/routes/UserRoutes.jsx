@@ -9,6 +9,7 @@ import ProductCatalog from '../pages/user/ProductCatalog.jsx';
 import CollectionPage from '../pages/user/CollectionPage.jsx';
 import ProductPage from '../pages/user/ProductPage.jsx';
 import EnhancedCartPage from '../pages/user/CartPage.jsx';
+import AuthContainer from '../auth/AuthContainer'
 export default function UserRoutes(){
 return(
   <Routes>
@@ -22,6 +23,8 @@ return(
 
 <Route path='product-page/:productId' element={<ProductPage/>}/>
 <Route path='cart-page' element={<EnhancedCartPage/>}/>
+    <Route path='login' element={<AuthContainer/>}/>
+
     </Route>
   </Routes>
 )

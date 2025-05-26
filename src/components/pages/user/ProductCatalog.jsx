@@ -129,6 +129,9 @@ const ProductCatalog = () => {
     setFilteredProducts(sortedProducts);
   };
 
+
+if (isLoading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-500">Something Went Wrong.</div>;
   return (
 
     <main className="flex-1 ml-6">
@@ -209,13 +212,13 @@ const ProductCatalog = () => {
             ))} */}
 
 
-                        { !isLoading ? ( data.map((product) => (
+                        {  ( data.map((product) => (
 
               <Products
                 id={product.id}
                 product={product}
               />
-            ))): "Loading"}  
+            )))}
           </motion.div>
         </AnimatePresence>
 

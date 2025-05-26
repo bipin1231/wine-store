@@ -14,32 +14,8 @@ import {
 import {Button, ButtonGroup} from "@nextui-org/button"
 import { useSelector,useDispatch } from "react-redux";
 import { removeFromCart } from "../../../redux/cartSlice";
+import { useGetCartQuery } from "../../../redux/cartApi";
 
-
-// Sample cart items
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Château Margaux 2015",
-    price: 699,
-    quantity: 1,
-    image: "/placeholder.svg?height=200&width=150",
-  },
-  {
-    id: 2,
-    name: "Dom Pérignon 2010",
-    price: 249,
-    quantity: 2,
-    image: "/placeholder.svg?height=200&width=150",
-  },
-  {
-    id: 3,
-    name: "Opus One 2018",
-    price: 399,
-    quantity: 1,
-    image: "/placeholder.svg?height=200&width=150",
-  },
-];
 
 export default function EnhancedCartPage() {
   const [cartItems, setCartItems] = useState([]);
@@ -49,7 +25,19 @@ export default function EnhancedCartPage() {
 
   const sliceCartItems=useSelector(state=>state.cart.items)
   const sliceProductDetails=useSelector(state=>state.products.items)
+
+  const userInfo=useSelector(state=>state.users.userInfo)
+ 
+  const {data,error,isLoading}=useGetCartQuery();
+  console.log("daraa",data);
+  
   const dispatch=useDispatch()
+
+  useEffect(()=>{
+    if(userInfo){
+
+    }
+  })
 
   useEffect(()=>{
     if(sliceCartItems && sliceProductDetails){

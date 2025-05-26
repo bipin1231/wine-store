@@ -5,6 +5,8 @@ import SignupForm from "./SignupForm";
 import OtpVerification from "./OtpVerification";
 import { useSignupMutation, useOtpVerificationMutation,useLoginMutation } from "../../redux/authApi";
 import { useNavigate } from "react-router-dom";
+import {setUserInfo} from "../../redux/userSlice"
+import { useDispatch } from "react-redux";
 
 const AuthContainer = () => {
   const [authMode, setAuthMode] = useState("login"); // "login", "signup", "otp"
@@ -14,6 +16,7 @@ const AuthContainer = () => {
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
   const [verifyOtp, { isLoading: isOtpLoading }] = useOtpVerificationMutation();
   const navigate=useNavigate();
+  const dispatch=useDispatch();
   // Fast, snappy animations
   const containerVariants = {
     hidden: { opacity: 1 },
@@ -97,6 +100,7 @@ const AuthContainer = () => {
      console.log(res);
      
     console.log("login successfullllyyyy");
+    dispatch(setUserInfo(res))
     navigate("/");
     } catch (error) {
       console.error("login failed:", error);
@@ -111,6 +115,7 @@ const AuthContainer = () => {
       console.log(res);
       
       console.log("OTP verification successful");
+      navigate('/login')
     } catch (error) {
       console.error("OTP verification failed:", error);
       // You could add toast notifications here
