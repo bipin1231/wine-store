@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cartSlice";
 import { Button } from "@nextui-org/button";
 import { useGetProductsByIdQuery } from "../../../redux/productApi";
 import { useGetCategoryQuery } from "../../../redux/categoryApi";
+import { useAddToCartMutation } from "../../../redux/cartApi";
+
 
 export default function ProductPage() {
   const { productId } = useParams();
@@ -16,30 +18,50 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(null);
 
+  const [addToCart]=useAddToCartMutation();
+   const userInfo=useSelector(state=>state.users.userInfo)
+   const userId = userInfo?.user?.id;
+
   useEffect(() => {
     if (product?.productSize?.length) {
       setSelectedSize(product.productSize[0]);
     }
+    console.log(selectedSize);
+    
   }, [product]);
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
-  const addItemToCart = () => {
+  const addItemToCart = async () => {
     if (!selectedSize) {
       alert("Please select a size.");
       return;
     }
 
-    dispatch(
-      addToCart({
-        id: productId,
-        sizeId: selectedSize.id,
-        size: selectedSize.size,
-        price: selectedSize.sellingPrice,
-        quantity,
-      })
-    );
+if(userId){
+    const cartProduct={
+      userId:userId,
+      productId:product.id,
+      sizeId:selectedSize.id,
+      quantity:quantity
+    }
+    await addToCart(cartProduct)
+        .unwrap()
+        .then(() => console.log("product aaded to cart"))
+        .catch((e) => console.log("Failed product aaded to cart",e));
+    console.log(cartProduct);
+  }
+
+    // dispatch(
+    //   addToCart({
+    //     id: productId,
+    //     sizeId: selectedSize.id,
+    //     size: selectedSize.size,
+    //     price: selectedSize.sellingPrice,
+    //     quantity,
+    //   })
+    // );
   };
 
   if (isLoading) return <div className="p-4">Loading...</div>;

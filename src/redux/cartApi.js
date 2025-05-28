@@ -2,21 +2,35 @@ import {createApi,fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import { baseQueryWithAuth } from './baseQuery';
 
 export const cartApi=createApi({
-  reducerPath:"categoryApi",
+  reducerPath:"cartApi",
   baseQuery:baseQueryWithAuth,
   endpoints:builder=>({
-    addCategory:builder.mutation({
-      query: newCategory=>({
-        url:'/category',
+    addToCart:builder.mutation({
+      query: cartItem=>({
+        url:'/cart/add',
         method:'POST',
-        body:newCategory,
+        body:cartItem,
+      })
+    }),
+    deleteCartItem:builder.mutation({
+      query: cartItemId=>({
+        url:`/cart/delete/${cartItemId}`,
+        method:'DELETE',
+       
+      })
+    }),
+    updateCartItem:builder.mutation({
+      query: ({cartItemId,quantity})=>({
+        url:`/cart/update?cartItemId=${cartItemId}&quantity=${quantity}`,
+        method:'PUT',
+       
       })
     }),
     getCart:builder.query({
-      query:()=>'cart',
+      query:(data)=>`cart/${data}`,
     })
   })
 
 })
 
-export const {useGetCartQuery,useAddCategoryMutation}=cartApi;
+export const {useGetCartQuery,useAddToCartMutation,useDeleteCartItemMutation,useUpdateCartItemMutation}=cartApi;
