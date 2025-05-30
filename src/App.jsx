@@ -10,7 +10,7 @@ import AdminRoutes from './components/routes/AdminRoutes'
 
 function App() {
 
-  const userType = "user"
+  const userType = "admin"
 
   return (
     <BrowserRouter>

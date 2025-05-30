@@ -6,6 +6,7 @@ import ProductLists from '../pages/user/admin/ProductLists'
 import ManageProducts from '../pages/user/admin/ManageProducts'
 import AddProduct from '../pages/user/admin/AddProduct'
 import AuthContainer from '../auth/AuthContainer'
+import Category from '../pages/user/admin/Category'
 function AdminRoutes() {
 
   return (
@@ -18,6 +19,7 @@ function AdminRoutes() {
     <Route path='/' element={<Dashboard/>}/>
     <Route path='product-lists' element={<ProductLists/>}/>
     <Route path='manage-products' element={<ManageProducts/>}/>
+    <Route path='category' element={<Category/>}/>
     <Route path='add-products' element={<AddProduct/>}/>
     <Route path='login' element={<AuthContainer/>}/>
   

@@ -39,6 +39,7 @@ export default function AdminNavbar() {
   const navItems = [
     { path: '/', label: 'Dashboard' },
     { path: '/product-lists', label: 'Products' },
+        { path: '/category', label: 'Category' },
     { path: '/manage-products', label: 'Manage Products' },
     { path: '/add-products', label: 'Add Product' },
     { path: '/customers', label: 'Customers' },

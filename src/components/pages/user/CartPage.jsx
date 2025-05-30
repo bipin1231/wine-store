@@ -31,7 +31,7 @@ export default function EnhancedCartPage() {
   } = useGetCartQuery(userId, {
     skip: !userId,
   });
-
+console.log("fetehed cart",cartItems)
   const [deleteCartItem] = useDeleteCartItemMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
 
@@ -103,15 +103,16 @@ export default function EnhancedCartPage() {
                   >
                     <div className="relative w-24 h-32 overflow-hidden">
                       <img
-                        src={item.product?.image || "/placeholder.png"}
+                        src={`http://localhost:8080/images/${item.url}`}
                         alt={item.productName}
                         className="object-cover rounded-l-md w-full h-full"
                       />
                     </div>
                     <div className="flex-1 space-y-1">
                       <h3 className="font-semibold">{item.productName}</h3>
+                      <h3 className="font-semibold">{item.size}</h3>
                       <p className="text-sm text-muted-foreground">
-                        ${item.price.toFixed(2)}
+                        ${item.productPrice.toFixed(2)}
                       </p>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -135,7 +136,7 @@ export default function EnhancedCartPage() {
                     </div>
                     <div className="text-right pr-4">
                       <p className="font-semibold">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${(item.totalPrice).toFixed(2)}
                       </p>
                       <Button
                         variant="ghost"
