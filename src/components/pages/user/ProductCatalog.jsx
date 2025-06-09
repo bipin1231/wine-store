@@ -222,17 +222,6 @@ if (isLoading) return <div className="p-4">Loading...</div>;
           </motion.div>
         </AnimatePresence>
 
-                {
-                    isLoading? (
-                    <div>loading...........</div>
-                  ):error?(
-                    <div>errrorrr while fetching....</div>
-                  ):(
-                    data.map((a,i)=>(  <pre key={i}>{JSON.stringify(a, null, 2)}</pre>))
-                    
-                  )
-                      
-                }
 
 
 

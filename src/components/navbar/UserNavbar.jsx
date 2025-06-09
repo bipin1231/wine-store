@@ -5,32 +5,48 @@ import { Wine, Search, ShoppingCart, User } from 'lucide-react';
 import {Button, ButtonGroup} from "@nextui-org/button"
 import { Input } from "@nextui-org/input"
 import { useSelector } from 'react-redux';
+import { useGetProductsByNameQuery } from '../../redux/productApi';
 
 export default function UserNavbar() {
   const [searchQuery,setSearchQuery]=useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [filteredProducts,setFilteredProducts]=useState([])
+const { data: results = [], isLoading } = useGetProductsByNameQuery(searchQuery, {
+  skip: !searchQuery // Only fetch when query is not empty
+});
+
   const [showList,setshowList]=useState(false)
   const productData=useSelector(state=>state.products.items)
     const handleSearch=(e)=>{
     setSearchQuery(e.target.value)
-    console.log(searchQuery)
-    
+  
   }
-  useEffect(()=>{
+  const handleKeyDown=(e)=>{
+    console.log(e.target.value);
+    
+  if(e.key=='Enter'){
+     console.log("hello");
+  
+     
+    }
+  }
+    console.log(searchQuery)
+    console.log(results);
+    
+//   useEffect(()=>{
 
-if(searchQuery){
-const filteredProduct=productData.filter(p=>
-  p.name.toLowerCase().includes(searchQuery) ||
-  p.description.toLowerCase().includes(searchQuery) ||
-  p.type.toLowerCase().includes(searchQuery)
-)
-if(filteredProduct) {setFilteredProducts(filteredProduct)
+// if(searchQuery){
+// const filteredProduct=productData.filter(p=>
+//   p.name.toLowerCase().includes(searchQuery) ||
+//   p.description.toLowerCase().includes(searchQuery) ||
+//   p.type.toLowerCase().includes(searchQuery)
+// )
+// if(filteredProduct) {setFilteredProducts(filteredProduct)
 
-console.log(filteredProduct);
-}
-}
-  },[searchQuery])
+// console.log(filteredProduct);
+// }
+// }
+//   },[searchQuery])
 
   return (
     <header className="xl:px-8 bg-white bg-opacity-10 sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md shadow-md supports-[backdrop-filter]:bg-background/80">
@@ -56,14 +72,14 @@ console.log(filteredProduct);
         </nav>
 
         <div className="flex items-center space-x-4">
-          <motion.form
+          <motion.div
             className="relative"
             initial={false}
             animate={isSearchActive ? { width: '300px', opacity: 1 } : { width: '0px', opacity: 0 }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
             style={{ overflow: 'hidden' }} // To handle the width animation cleanly
           >
-<form action="" >
+
         <Input
           classNames={{
             base: "max-w-full sm:max-w-[10rem] h-10",
@@ -74,18 +90,19 @@ console.log(filteredProduct);
           placeholder="Type to search..."
           size="sm"
          value={searchQuery}
-         onChange={(e)=>setSearchQuery(e.target.value.toLowerCase())} 
+         onChange={(e)=>handleSearch(e)} 
+         onKeyDown={(e)=>handleKeyDown(e)}
          type="search"
           
         />
-</form>
+
             {/* <Input
               type="search"
               placeholder="Search collections..."
               className={`transition-all ${isSearchActive ? 'pl-8' : 'pl-0'} sm:w-[300px]`}
             /> */}
             {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /> */}
-          </motion.form>
+          </motion.div>
 
           <Button variant="ghost" size="icon" onClick={() => {setIsSearchActive(!isSearchActive)
             setshowList(!showList)
@@ -115,15 +132,15 @@ console.log(filteredProduct);
             <ul>
               {filteredProducts.map(product => (
                 <li key={product.id} className="py-2">
-                  <Link to={`/product-page/${product.id}`} 
+                  {/* <Link to={`/product-page/${product.id}`} 
                   onClick={()=>{setshowList(false) 
                     setSearchQuery("")
                     setIsSearchActive(!isSearchActive)
                   }}
                   className=" flex hover:underline items-center space-x-4">
-                  <img src={product.image} className='w-10 h-10' />
+             
                     {product.name}
-                  </Link>
+                  </Link> */}
                 </li>
               ))}
             </ul>

@@ -7,6 +7,9 @@ export const productApi=createApi({
     getProducts:builder.query({
       query:()=>'product',
     }),
+     getProductsByName:builder.query({
+      query:(query)=>`product/search?query=${query}`,
+    }),
     getProductsById:builder.query({
       query:(productId)=>`product/${productId}`,
     }),
@@ -28,17 +31,56 @@ export const productApi=createApi({
     }
     }),
     updateProductSize:builder.mutation({
-      query: ({id,newSize})=>{
+      query: (newSize)=>{
   
         return{
-        url:`/product/update-size/${id}`,
+        url:`/product/update-size-all`,
         method:'PUT',
         body:newSize,
       }
     }
     }),
+    updateProductInfo:builder.mutation({
+      query: (newSize)=>{
+  
+        return{
+        url:`/product/update-product-all`,
+        method:'PUT',
+        body:newSize,
+      }
+    }
+    }),
+    updateProductImage:builder.mutation({
+      query: (newSize)=>{
+  
+        return{
+        url:"/product/update-product-image",
+        method:'PUT',
+        body:newSize,
+      }
+    }
+    }),
+
+
+      deleteProductImage:builder.mutation({
+      query: ({id,name})=>{
+  
+        return{
+        url:`/product/delete-image?id=${id}&name=${name}`,
+        method:'DELETE',
+   
+      }
+    }
+    }),
+
   })
 
 })
 
-export const {useGetProductsQuery,useAddProductMutation,useUpdateProductSizeMutation,useGetProductsByIdQuery}=productApi;
+export const {useGetProductsByNameQuery,
+  useGetProductsQuery,
+  useAddProductMutation,useUpdateProductSizeMutation,useGetProductsByIdQuery,useUpdateProductInfoMutation,
+  useDeleteProductImageMutation,
+useUpdateProductImageMutation,
+
+}=productApi;

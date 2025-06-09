@@ -1,40 +1,143 @@
-import React from 'react'
-import { useForm } from 'react-hook-form';
-import { useGetCategoryQuery,useAddCategoryMutation } from '../../../../redux/categoryApi'
+import React, { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useGetCategoryQuery, useAddCategoryMutation, useUpdateCategoryMutation } from '../../../../redux/categoryApi';
+import Select from 'react-select';
+import AddCategory from './Category/AddCategory';
+import ListCategory from './category/ListCategory';
+
 function Category() {
-  const {data,isLoading,error}=useGetCategoryQuery();
-  const [addCategory]=useAddCategoryMutation();
-  console.log(data);
+  const { data, isLoading, error,refetch } = useGetCategoryQuery();
+  const [updateCategoryMutation]=useUpdateCategoryMutation();
+  const [addCategoryMutation] = useAddCategoryMutation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isAddCategory,setIsAddCategory] = useState(false);
+
+  const categoryOptions = data?.map((d) => ({
+    label: d.name,
+    value: d.name
+  })) || [];
+console.log(data);
+
+  const onSubmit = async (formData) => {
+   console.log('Raw formData:', formData);
+
+  const payload = {
+    category: formData.category,
+    parentCategory: formData?.parentCategory?.value || null,
+    image: formData.image[0], // ✅ grab the first selected file
+  };
+  console.log("payload issssp",payload);
   
-    const { register, handleSubmit, control, formState: { errors } } = useForm();
-  
-  return (
-    <>
-  {
-    data ? data.map((category,i)=><h1 key={i}>{category.name}</h1>):<>Something went wrong</>
+
+  const data=new FormData();
+  data.append('category',payload.category)
+  data.append('parentCategory',payload.parentCategory)
+  data.append('image',payload.image)
+
+    try {
+      await addCategoryMutation(data);
+    refetch();
+      
+    } catch (error) {
+      console.log(error);
+      
+    }
+    // You can use addCategory(formData) here if needed
+  };
+
+  const handleSaveAll= async (data)=>{
+    console.log("sending to bacakend",data);
+
+const formData = new FormData();
+data.forEach((item, index) => {
+  if(item.id)
+  formData.append(`categoryList[${index}].id`, item.id);
+if( item?.name)
+  formData.append(`categoryList[${index}].name`, item?.name);
+if(item?.description)
+  formData.append(`categoryList[${index}].description`, item?.description);
+  if (item.img) {
+    formData.append(`categoryList[${index}].image`, item?.img);
   }
-  <form action="">
-  <label>Category Name</label>
-          <input
-            {...register("name", { required: "category name is required" })}
-            placeholder="Enter category name"
-          />
-          {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
-
- <label>Parent Category</label>
-
-{/* add dropdown for the parent category */}
-          <input
-            {...register("parentName")}
-            placeholder="Enter category name"
-          />
-          {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
+});
 
 
-  </form>
 
-    </>
-  )
+
+       try {
+     const res= await updateCategoryMutation(formData);
+     console.log("rsponse from the server",res);
+     
+         refetch();
+
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
+  return (
+    <div className="p-6 max-w-xl mx-auto bg-white shadow-md rounded-lg space-y-6">
+      <h2 className="text-2xl font-semibold text-gray-800">Categories</h2>
+
+      {isLoading && <p className="text-gray-500">Loading categories...</p>}
+      {error && <p className="text-red-500">Failed to load categories.</p>}
+
+      <div className="space-y-2">
+        {data ? (
+          data.map((category, i) => (
+            <div key={i} className="text-lg text-gray-700">
+              • {category.name}
+            </div>
+          ))
+        ) : (
+          <div className="text-red-500">Something went wrong.</div>
+        )}
+      </div>
+
+      <div className="flex space-x-4 items-center">
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-blue-600 hover:underline"
+          >
+            Edit
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => setIsEditing(false)}
+              className="text-red-500 hover:underline"
+            >
+              Cancel
+            </button>
+            <button className="text-green-600 hover:underline">Update</button>
+          </>
+        )}
+      </div>
+      {
+        !isAddCategory?<span onClick={()=>setIsAddCategory(true)}>Add Category</span>:<span onClick={()=>setIsAddCategory(false)}>Cancel</span>
+      }
+      
+<div>
+  {
+    isAddCategory? <AddCategory
+   categoryOptions={categoryOptions}
+  onSubmit={onSubmit}
+  />:<></>
+  }
+ 
+</div>
+<div>
+  <ListCategory
+  categories={data}
+  isEditing={isEditing}
+  onSaveAll={handleSaveAll}
+  />
+</div>
+   
+    </div>
+  );
 }
 
-export default Category
+export default Category;

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'; // React Router Link
 import { Wine, Search, ShoppingCart, User, ArrowRight } from 'lucide-react';
 import {Button, ButtonGroup} from "@nextui-org/button";
 import { useSelector } from 'react-redux';
+import { useGetCategoryQuery } from '../../../redux/categoryApi';
 
 const collections = [
   { id: 1, name: "Red Wines", description: "Bold and robust flavors", image: "https://via.placeholder.com/600x400", count: 45 },
@@ -15,9 +16,23 @@ const collections = [
 ];
 
 export default function CollectionPage() {
+     const { data: categoryData } = useGetCategoryQuery();
 
   const collection=useSelector(state=>state.products.collection)
   console.log(collection);
+
+      const localManagedCategory = categoryData?.flatMap((cat) => {
+    if (Array.isArray(cat.subcategories) && cat.subcategories.length > 0) {
+      return cat.subcategories.map((sub) => ({
+        id: sub.id,
+        name: sub.name,
+        img:sub.img
+      }));
+    } else {
+      return [{ id: cat.id, name: cat.name, img:cat.img }];
+    }
+  }) || [];
+
   
   return (
 
@@ -44,7 +59,7 @@ export default function CollectionPage() {
         <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 ">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {collection.map((collection, index) => (
+              {localManagedCategory.map((collection, index) => (
                 <motion.div
                   key={collection.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -54,7 +69,7 @@ export default function CollectionPage() {
                   <Link to={`/product-catalog/${collection.name}`} className="group block">
                     <div className="relative overflow-hidden rounded-lg shadow-lg">
                       <img
-                        src={collection.image}
+                        src={`http://localhost:8080/images/${collection.img}`}
                         alt={collection.name}
                         className="object-cover w-full h-[300px] transition-transform duration-300 group-hover:scale-105"
                       />

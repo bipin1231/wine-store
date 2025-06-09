@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import FeaturedCollection from '../../reusable/FeaturedCollection';
 import Arrivals from '../../reusable/Arrivals';
 import { useSelector } from 'react-redux';
+import { useGetCategoryQuery } from '../../../redux/categoryApi';
 
 const Button = ({ children, variant, size, className, ...props }) => (
   <button
@@ -26,6 +27,7 @@ const Input = ({ className, ...props }) => (
 
 
 const HomePage = () => {
+    const { data: categoryData } = useGetCategoryQuery();
   const [latestArrivals, setLatestArrival] = useState([
     { name: "Château Margaux 2015", price: "$699", image: "/api/placeholder/300/400" },
     { name: "Opus One 2018", price: "$399", image: "/api/placeholder/300/400" },
@@ -33,15 +35,22 @@ const HomePage = () => {
     { name: "Sassicaia 2017", price: "$279", image: "/api/placeholder/300/400" },
   ]);
 
-    const [featuredCollection,setFeaturedCollection]=useState([
-      { name: "Red Wines", image: "/api/placeholder/600/400" },
-      { name: "White Wines", image: "/api/placeholder/600/400" },
-      { name: "Sparkling Wines", image: "/api/placeholder/600/400" },
-    ])
-
     const collection=useSelector(state=>state.products.collection)
-    console.log(collection);
-    
+
+
+      const localManagedCategory = categoryData?.flatMap((cat) => {
+    if (Array.isArray(cat.subcategories) && cat.subcategories.length > 0) {
+      return cat.subcategories.map((sub) => ({
+        id: sub.id,
+        name: sub.name,
+        img:sub.img
+      }));
+    } else {
+      return [{ id: cat.id, name: cat.name, img:cat.img }];
+    }
+  }) || [];
+
+
 
 
   return (
@@ -70,11 +79,11 @@ const HomePage = () => {
               Featured Collections
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {collection.map((collection) => (
+              {localManagedCategory?.map((collection) => (
             <FeaturedCollection
-            key={collection.name}
+            key={collection.id}
             name={collection.name}
-            img={collection.image}
+            img={collection.img}
           />
               ))}
               

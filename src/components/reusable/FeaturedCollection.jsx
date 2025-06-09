@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-function FeaturedCollection({ name, img }) {
+function FeaturedCollection({ id,name, img }) {
   return (
     <>
       <Link
@@ -9,7 +9,8 @@ function FeaturedCollection({ name, img }) {
         className="group relative overflow-hidden rounded-lg shadow-lg cursor-pointer"
       >
         <img
-          src={img}
+          src={`http://localhost:8080/images/${img}`}
+          key={id}
           alt={name}
           className="object-cover w-full h-[300px] transition-transform duration-300 ease-in-out group-hover:scale-105"
         />

@@ -13,9 +13,16 @@ export const categoryApi=createApi({
     }),
     getCategory:builder.query({
       query:()=>'category',
+    }),
+    updateCategory:builder.mutation({
+      query: data =>({
+        url:'/category/update-all',
+        method:'PUT',
+        body:data,
+      })
     })
   })
 
 })
 
-export const {useGetCategoryQuery,useAddCategoryMutation}=categoryApi;
+export const {useGetCategoryQuery,useAddCategoryMutation,useUpdateCategoryMutation}=categoryApi;
