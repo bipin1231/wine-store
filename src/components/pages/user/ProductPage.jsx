@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams,useLocation } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cartSlice";
 import { Button } from "@nextui-org/button";
@@ -11,6 +11,9 @@ import { useAddToCartMutation } from "../../../redux/cartApi";
 
 export default function ProductPage() {
   const { productId } = useParams();
+    const location = useLocation();
+  const { productSizeId } = location.state || {};
+
   const dispatch = useDispatch();
   const { data: product, error, isLoading } = useGetProductsByIdQuery(productId);
   const { data: category } = useGetCategoryQuery();
@@ -22,9 +25,17 @@ export default function ProductPage() {
    const userInfo=useSelector(state=>state.users.userInfo)
    const userId = userInfo?.user?.id;
 
+
+
   useEffect(() => {
-    if (product?.productSize?.length) {
-      setSelectedSize(product.productSize[0]);
+    if (product?.productVariant?.length) {
+    
+   const foundSize = product.productVariant.find(s => s.id === productSizeId);
+   setSelectedSize(foundSize || product.productSize[0]);
+
+
+
+   
     }
     console.log(selectedSize);
     
@@ -108,13 +119,13 @@ if(userId){
             <p className="text-gray-600">{product.description}</p>
 
             {/* Sizes */}
-            {product.productSize?.length > 0 && (
+            {product?.productVariant?.length > 0 && (
               <div>
                 <h2 className="font-semibold mb-1">Available Sizes</h2>
                 <div className="flex gap-2 flex-wrap">
-                  {product.productSize.map((s) => (
+                  {product?.productVariant?.map((s) => (
                     <button
-                      key={s.id}
+                      key={s.name}
                       onClick={() => setSelectedSize(s)}
                       className={`border px-4 py-2 rounded ${
                         selectedSize?.id === s.id

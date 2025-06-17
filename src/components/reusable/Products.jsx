@@ -17,12 +17,13 @@ const Badge = ({ children, className = "" }) => (
 
 function Products({ product }) {
   const dispatch = useDispatch();
+console.log("product info",product);
 
-  const addItemToCart = () => {
-    dispatch(addToCart({ id: product.id, quantity: 1 }));
-    console.log("Added to cart");
-  };
-console.log(product);
+//   const addItemToCart = () => {
+//     dispatch(addToCart({ id: product.id, quantity: 1 }));
+//     console.log("Added to cart");
+//   };
+// console.log(product);
 
   return (
     // <div 
@@ -58,10 +59,13 @@ console.log(product);
     // </div>
 
 
-    <Link to={`/product-page/${product.id}`}>
+    <Link 
+    to={`/product-page/${product.productId}`}
+      state={{ productSizeId: product.productSizeId}}
+    >
      
         <motion.div
-          key={product.id}
+          key={product.productSizeId}
           variants={{
             hidden: { opacity: 0, y: 20 },
             visible: { opacity: 1, y: 0 }
@@ -77,22 +81,24 @@ console.log(product);
              
              <Image
          
-              src={`http://localhost:8080/images/${product.imageUrl[0]}`}
+              src={`http://localhost:8080/images/${product.imageUrl}`}
                 alt={product.name}
                 className="object-cover w-full h-[300px] transition-transform group-hover:scale-105"
               
               />
             </motion.div>
             <CardBody className="p-4">
-              <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
+              <h3 className="font-semibold text-lg mb-1">{product.productName}</h3>
               <p className="text-sm text-muted-foreground mb-2">{product.categoryName}</p>
+              <p className="text-sm text-muted-foreground mb-2">{product.size}</p>
+              <p className="text-sm text-muted-foreground mb-2">{product.price}</p>
               <div className="flex justify-between items-center mb-4">
                 {/* <span className="font-bold text-lg">${product.price}</span> */}
                 <Badge variant="secondary">
                   ★ {product.rating}
                 </Badge>
               </div>
-              <Button className="w-full" onClick={ addItemToCart}>
+              <Button className="w-full">
                 Add to Cart
               </Button>
             </CardBody>

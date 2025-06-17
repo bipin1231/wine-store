@@ -16,7 +16,7 @@ return(
     <Route path='/' element={<UserLayout/>}>
     <Route path='/' element={<HomePage/>}/>
 
-<Route path='product-catalog/:category' element={<ProductCatalog/>}/>
+<Route path='product-catalog/:searchQuery' element={<ProductCatalog/>}/>
 <Route path='product-catalog/:search' element={<ProductCatalog/>}/>
 <Route path='product-catalog' element={<ProductCatalog/>}/>
 <Route path='collection-page' element={<CollectionPage/>}/>
