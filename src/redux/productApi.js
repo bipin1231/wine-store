@@ -8,7 +8,7 @@ export const productApi = createApi({
       query: () => 'product',
     }),
     getProductsBySizeAll: builder.query({
-      query: () => 'product/product-size-all',
+      query: () => 'product/variant',
     }),
     getProductsNameListByName: builder.query({
       query: (query) => `product/search-list?query=${query}`,
@@ -49,6 +49,16 @@ export const productApi = createApi({
         }
       }
     }),
+    updateProductVariant: builder.mutation({
+      query: (newVariant) => {
+
+        return {
+          url: `/product/variant/update`,
+          method: 'PUT',
+          body: newVariant,
+        }
+      }
+    }),
     updateProductInfo: builder.mutation({
       query: (newSize) => {
 
@@ -64,6 +74,16 @@ export const productApi = createApi({
 
         return {
           url: "/product/update-product-image",
+          method: 'PUT',
+          body: newSize,
+        }
+      }
+    }),
+    updateProductVaraintImage: builder.mutation({
+      query: (newSize) => {
+
+        return {
+          url: "/product/variant/update-image",
           method: 'PUT',
           body: newSize,
         }
@@ -94,5 +114,7 @@ export const { useGetProductsByNameQuery,
   useAddProductMutation, useUpdateProductSizeMutation, useGetProductsByIdQuery, useUpdateProductInfoMutation,
   useDeleteProductImageMutation,
   useUpdateProductImageMutation,
+  useUpdateProductVariantMutation,
+  useUpdateProductVaraintImageMutation,
 
 } = productApi;

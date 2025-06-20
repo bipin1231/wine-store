@@ -57,7 +57,7 @@ export default function ProductLists() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
+              {filteredProducts?.map((product) => (
                 <tr key={product.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{product.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{product.name}</td>
@@ -67,7 +67,7 @@ export default function ProductLists() {
                       <div className="font-semibold">Size</div>
                       <div className="font-semibold">Price</div>
                       <div className="font-semibold">Stock</div>
-                      {product.productSize.map((size) => (
+                      {product?.productSize?.map((size) => (
                         <React.Fragment key={size.id}>
                           <div>{size.size}</div>
                           <div>NPR {size.sellingPrice}</div>
