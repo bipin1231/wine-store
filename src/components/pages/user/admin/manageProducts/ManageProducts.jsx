@@ -31,7 +31,8 @@ const ManageProducts = () => {
     handleDeleteImage,
     handleNewImage,
     handleSaveImages,
-    imageData
+    imageData,
+    deleteProductVariant
   } = useManageProducts();
 
   return (
@@ -57,6 +58,7 @@ const ManageProducts = () => {
           setIsImageModalOpen={setIsImageModalOpen}
           setModifiedProductVariant={setModifiedProductVariant}
           handleModifiedProductVariantChange={handleModifiedProductVariantChange}
+          deleteProductVariant={deleteProductVariant}
         />
       </main>
       {isImageModalOpen  && (

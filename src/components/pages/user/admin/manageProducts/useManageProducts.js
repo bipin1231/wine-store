@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {  categories } from './dummyData';
 import { useGetProductsQuery } from '../../../../../redux/productApi';
-import { useUpdateProductVariantMutation,useUpdateProductVaraintImageMutation } from '../../../../../redux/productApi';
+import { useUpdateProductVariantMutation,useUpdateProductVaraintImageMutation,useDeleteProductVariantMutation } from '../../../../../redux/productApi';
 
 export default function useManageProducts() {
   const [isEditing, setIsEditing] = useState(false);
@@ -14,6 +14,7 @@ export default function useManageProducts() {
   const { data:products=[], error, isLoading } = useGetProductsQuery();
   const [updateProductVariantMutation] = useUpdateProductVariantMutation();
   const [updateProductVariantImageMutation] = useUpdateProductVaraintImageMutation();
+  const [deleteProductVariantMutation] = useDeleteProductVariantMutation();
 
 
   const [imageData,setImageData]=useState([])
@@ -121,6 +122,18 @@ const handleSaveImages = async () => {
   }
 };
 
+const deleteProductVariant=async (id)=>{
+
+
+try{
+  await deleteProductVariantMutation(id)
+  console.log("deleted successsfully");
+  
+}catch(e){
+  console.log(e);
+  
+}
+}
 
 
 
@@ -148,7 +161,8 @@ const handleSaveImages = async () => {
     handleDeleteImage,
     handleSaveImages,
     handleNewImage,
-    imageData
+    imageData,
+    deleteProductVariant
 
   };
 }

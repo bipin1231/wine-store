@@ -91,11 +91,11 @@ export const productApi = createApi({
     }),
 
 
-    deleteProductImage: builder.mutation({
-      query: ({ id, name }) => {
+    deleteProductVariant: builder.mutation({
+      query: ( id ) => {
 
         return {
-          url: `/product/delete-image?id=${id}&name=${name}`,
+          url: `/product/variant/${id}`,
           method: 'DELETE',
 
         }
@@ -112,7 +112,7 @@ export const { useGetProductsByNameQuery,
   useGetProductsQuery,
   useGetFilteredProductsQuery,
   useAddProductMutation, useUpdateProductSizeMutation, useGetProductsByIdQuery, useUpdateProductInfoMutation,
-  useDeleteProductImageMutation,
+  useDeleteProductVariantMutation,
   useUpdateProductImageMutation,
   useUpdateProductVariantMutation,
   useUpdateProductVaraintImageMutation,

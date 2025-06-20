@@ -2,7 +2,7 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import { FiFilter } from 'react-icons/fi';
 
-const ProductList = ({ products, isEditing, handleEditClick,   setIsImageModalOpen,setModifiedProductVariant,handleModifiedProductVariantChange }) => {
+const ProductList = ({ products, isEditing, handleEditClick,   setIsImageModalOpen,setModifiedProductVariant,handleModifiedProductVariantChange,deleteProductVariant }) => {
   if (products.length === 0) {
     return (
       <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
@@ -28,6 +28,7 @@ const ProductList = ({ products, isEditing, handleEditClick,   setIsImageModalOp
           setIsImageModalOpen={setIsImageModalOpen}
           setModifiedProductVariant={setModifiedProductVariant}
           handleModifiedProductVariantChange={handleModifiedProductVariantChange}
+          deleteProductVariant={deleteProductVariant}
         />
       ))}
     </div>

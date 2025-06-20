@@ -2,7 +2,7 @@ import React from 'react';
 import ProductVariantImage from '../product/ProductVariantImage';
 import useManageProducts from './useManageProducts';
 import { FiImage, FiEdit } from 'react-icons/fi';
-const VariantTable = ({ variants,handleEditClick, isEditing,setIsImageModalOpen,handleModifiedProductVariantChange }) => {
+const VariantTable = ({ variants,handleEditClick, isEditing,setIsImageModalOpen,handleModifiedProductVariantChange,deleteProductVariant }) => {
  
   return (
     <div className="overflow-x-auto">
@@ -14,7 +14,9 @@ const VariantTable = ({ variants,handleEditClick, isEditing,setIsImageModalOpen,
             <th className="py-3 px-5 text-right font-medium">Selling Price</th>
             <th className="py-3 px-5 text-right font-medium">Stock</th>
             <th className="py-3 px-5 text-right font-medium">Profit</th>
-            <th className="py-3 px-5 text-right font-medium">Image</th>
+            <th className="py-3 px-5 text-right font-medium">
+              {isEditing?"Delete":"Image"}
+              </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 text-sm">
@@ -89,12 +91,17 @@ const VariantTable = ({ variants,handleEditClick, isEditing,setIsImageModalOpen,
              
               
                  <td className="py-3 px-5 text-right">
-                      <button
+                  {
+                    isEditing?
+                    
+                    <button onClick={()=>deleteProductVariant(variant.id)} >delete</button>: <button
             onClick={() => handleEditClick(variant)}
             className="flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 hover:bg-gray-50 rounded-lg transition"
           >
             <FiImage size={16} /> Images
           </button>
+                  }
+                     
                  
               </td>
             </tr>
