@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
-import { Checkbox, Input, Button} from "@nextui-org/react";
+import { Checkbox, Input, Button } from "@nextui-org/react";
 import { useGetCategoryQuery } from '../../../../redux/categoryApi';
 import { useAddProductMutation } from '../../../../redux/productApi';
+
 const Label = styled.label`
   display: block;
   margin-bottom: 5px;
@@ -25,7 +26,7 @@ const TextArea = styled.textarea`
 `;
 
 const FormContainer = styled(motion.div)`
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
@@ -59,42 +60,31 @@ const wineSizes = [
 export default function AddProduct() {
   const [standardPrice, setStandardPrice] = useState('');
   const [cartonPrice, setCartonPrice] = useState('');
-  const [imageFile, setImageFile] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [variantImagesMap, setVariantImagesMap] = useState({});
 
-  const [addProduct]=useAddProductMutation();
-  const { data, isLoading } = useGetCategoryQuery();
-  const categoryOptions = data?.map(cat => ({
-    value: cat.name,
-    label: cat.name
-  })) || [];
+  const [addProduct] = useAddProductMutation();
+  const { data: categoriesData = [] } = useGetCategoryQuery();
+  const categoryOptions = categoriesData.map(cat => ({ value: cat.name, label: cat.name }));
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm();
-
-  const { fields: sizeFields, append, remove } = useFieldArray({
-    control,
-    name: "sizeStocks"
-  });
-
-  const { fields: imageFields, append: addImage, remove: removeImage } = useFieldArray({
-    control,
-    name: "images"
-  });
+  const { register, handleSubmit, control, formState: { errors } } = useForm({ defaultValues: { sizeStocks: [] } });
+  const { fields: sizeFields, append: appendSize, remove: removeSize } = useFieldArray({ control, name: 'sizeStocks' });
 
   const handleSizeCheckboxChange = (isChecked, size) => {
     if (isChecked) {
-      append({ label: size.label, size: size.value, stock: "" });
+      appendSize({ label: size.label, size: size.value, stock: '' });
     } else {
-      const index = sizeFields.findIndex(field => field.label === size.label);
-      if (index >= 0) remove(index);
+      const idx = sizeFields.findIndex(f => f.size === size.value);
+      if (idx >= 0) removeSize(idx);
+      setVariantImagesMap(prev => {
+        const copy = { ...prev };
+        delete copy[idx];
+        return copy;
+      });
     }
   };
 
-  const handleImageChange = (files) => {
-    Array.from(files).forEach(file => addImage({ file }));
-  };
-
-  const bottlePrice = (size) => {
+  const bottlePrice = size => {
     const sp = parseFloat(standardPrice) || 0;
     if (size === '180ml') return sp / 4;
     if (size === '375ml') return sp / 2;
@@ -102,7 +92,7 @@ export default function AddProduct() {
     return 0;
   };
 
-  const bottleCostPrice = (size) => {
+  const bottleCostPrice = size => {
     const cp = parseFloat(cartonPrice) || 0;
     if (size === '180ml') return cp / 48;
     if (size === '375ml') return cp / 24;
@@ -110,175 +100,119 @@ export default function AddProduct() {
     return 0;
   };
 
-  const onSubmit = async (formData) => {
-    console.log(formData);
-    
-    const productData = {
-      name: formData.name,
-      category: formData.category?.value,
-      description: formData.description,
-      cartoonPrice:formData.cartoonPrice,
-      productSize: sizeFields.map((field, index) => ({
-        size: field.size,
-        stock: Number(formData.stocks?.[index] || 0),
-        sellingPrice: bottlePrice(field.size),
-        costPrice: bottleCostPrice(field.size),
-      }))
+  const onSubmit = async formData => {
+    const productSize = formData.sizeStocks.map((s, idx) => ({
+      size: s.size,
+      stock: Number(s.stock),
+      sellingPrice: bottlePrice(s.size),
+      costPrice: bottleCostPrice(s.size),
+      images: variantImagesMap[idx] || []
+    }));
+
+    const payload = {
+      product: {
+        name: formData.name,
+        category: formData?.category?.value,
+        description: formData?.description,
+        cartonPrice: formData.cartonPrice,
+        productSize
+      }
     };
-    const payload={
-      product:productData,
-      images:formData.images.map(img=>img.file)
+
+    console.log("payload data", payload);
+
+    try {
+      await addProduct(payload).unwrap();
+      toast.success('Product added!');
+    } catch {
+      toast.error('Failed to add product');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    console.log("Final Payload:", payload);
-
-    await addProduct(payload)
-    .unwrap()
-    .then(() => toast.success("Product added!"))
-    .catch(() => toast.error("Failed to add product"));
-    // Submit logic here...
   };
 
   return (
-    <FormContainer
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      
+    <FormContainer initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
       <FormTitle>Add New Product</FormTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Product Name & Category */}
         <FormGroup>
           <Label>Product Name</Label>
-          <Input
-            {...register("name", { required: "Product name is required" })}
-            placeholder="Enter product name"
-          />
+          <Input {...register('name', { required: 'Product name is required' })} placeholder='Enter product name' />
           {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
         </FormGroup>
-
         <FormGroup>
           <Label>Category</Label>
-          <Controller
-            name="category"
-            control={control}
-           // rules={{ required: "Category is required" }}
-            render={({ field }) => (
-              <Select
-                {...field}
-                options={categoryOptions}
-                placeholder="Select a category"
-              />
-            )}
-          />
-          {errors.category && <ErrorMessage>{errors.category.message}</ErrorMessage>}
+          <Controller name='category' control={control} rules={{ required: false }} render={({ field }) => <Select {...field} options={categoryOptions} placeholder='Select a category' />} />
+          {errors.category && <ErrorMessage>Category is required</ErrorMessage>}
         </FormGroup>
 
-        <FormGroup>
-          <Label>Selling Price (MRP for 750ml)</Label>
-          <Input
-          
-            type="number"
-            onChange={(e) => setStandardPrice(e.target.value)}
-            placeholder="Enter standard price"
-          />
-        </FormGroup>
+        {/* Prices */}
+        <div className='grid grid-cols-2 gap-4'>
+          <FormGroup>
+            <Label>Selling Price (MRP for 750ml)</Label>
+            <Input type='number' onChange={e => setStandardPrice(e.target.value)} placeholder='Enter standard price' />
+          </FormGroup>
+          <FormGroup>
+            <Label>Carton Cost Price</Label>
+            <Input {...register('cartonPrice', { required: true })} type='number' onChange={e => setCartonPrice(e.target.value)} placeholder='Enter carton price' />
+          </FormGroup>
+        </div>
 
-        <FormGroup>
-          <Label>Carton Cost Price</Label>
-          <Input
-            {...register("cartoonPrice")}
-            type="number"
-            onChange={(e) => setCartonPrice(e.target.value)}
-            placeholder="Enter carton price"
-          />
-        </FormGroup>
-
+        {/* Size Selection */}
         <FormGroup>
           <Label>Available Sizes</Label>
-          <div className="grid grid-cols-3 gap-3 mt-3">
+          <div className='grid grid-cols-2 gap-2 mt-2'>
             {wineSizes.map(size => (
-              <Checkbox
-                key={size.value}
-                onChange={(e) => handleSizeCheckboxChange(e.target.checked, size)}
-              >
-                {size.label}
-              </Checkbox>
+              <Checkbox key={size.value} onChange={e => handleSizeCheckboxChange(e.target.checked, size)}>{size.label}</Checkbox>
             ))}
           </div>
         </FormGroup>
 
-        <div className="space-y-3">
-          {sizeFields.map((field, index) => (
-            <div key={field.id} className="flex gap-3 items-center">
-              <Input
-                type="number"
-                {...register(`stocks.${index}`, { min: { value: 0, message: "Stock must be positive" } })}
-                label={field.label}
-                placeholder="Enter stock"
-              />
-              <Input
-                type="number"
-                value={bottlePrice(field.size)}
-                label="Selling Price"
-                
-              />
-              <Input
-                type="number"
-                value={bottleCostPrice(field.size)}
-                label="Cost Price"
-                
-              />
-            </div>
-          ))}
-        </div>
+        {/* Per-size inputs & images */}
+        <div className='space-y-6'>
+          {sizeFields.map((field, idx) => (
+            <div key={field.id} className='p-4 border rounded-lg'>
+              <h3 className='font-medium mb-2'>{field.label}</h3>
+              <div className='flex gap-3 mb-4'>
+                <Input type='number' {...register(`sizeStocks.${idx}.stock`, { required: true, min: { value: 0, message: 'Stock must be >= 0' } })} placeholder='Stock' />
+                <Input type='number' value={bottlePrice(field.size)} readOnly placeholder='Selling Price' />
+                <Input type='number' value={bottleCostPrice(field.size)} readOnly placeholder='Cost Price' />
+              </div>
 
-        <FormGroup>
-          <Label>Description</Label>
-          <TextArea
-            {...register("description", { required: "Description is required" })}
-            placeholder="Enter product description"
-            rows={4}
-          />
-          {errors.description && <ErrorMessage>{errors.description.message}</ErrorMessage>}
-        </FormGroup>
+              <input type='file' multiple accept='image/*' onChange={e => {
+                const files = Array.from(e.target.files);
+                setVariantImagesMap(prev => ({
+                  ...prev,
+                  [idx]: [...(prev[idx] || []), ...files]
+                }));
+              }} />
 
-        <FormGroup>
-          <Label>Product Image</Label>
-          <Input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) => handleImageChange(e.target.files)}
-          />
-        </FormGroup>
-
-        <div className="mt-4 flex gap-2 flex-wrap">
-          {imageFields.map((field, index) => (
-            <div key={field.id} className="relative group h-24 w-24 overflow-hidden rounded-lg shadow-md border">
-              <img
-                src={URL.createObjectURL(field.file)}
-                alt="Preview"
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="bg-red-500 text-white rounded-full p-1.5"
-                >
-                  ✕
-                </button>
+              <div className='flex gap-2 flex-wrap mt-2'>
+                {(variantImagesMap[idx] || []).map((file, i) => (
+                  <div key={i} className='relative w-24 h-24'>
+                    <img src={URL.createObjectURL(file)} alt='Preview' className='w-full h-full object-cover rounded' />
+                    <button type='button' onClick={() => setVariantImagesMap(prev => {
+                      const arr = [...(prev[idx] || [])]; arr.splice(i, 1);
+                      return { ...prev, [idx]: arr };
+                    })} className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-1'>✕</button>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
         </div>
 
-        <Button type="submit" isDisabled={isSubmitting}>
-          {isSubmitting ? 'Adding Product...' : 'Add Product'}
-        </Button>
+        {/* Description & Submit */}
+        <FormGroup>
+          <Label>Description</Label>
+          <TextArea {...register('description', { required: false })} rows={4} placeholder='Enter description' />
+          {errors.description && <ErrorMessage>Description is required</ErrorMessage>}
+        </FormGroup>
+        <Button type='submit' disabled={isSubmitting}>{isSubmitting ? 'Adding…' : 'Add Product'}</Button>
       </form>
-      <ToastContainer position="top-right" autoClose={3000} />
+
+      <ToastContainer position='top-right' autoClose={3000} />
     </FormContainer>
   );
 }
