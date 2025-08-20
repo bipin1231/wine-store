@@ -6,6 +6,7 @@ import ProductList from './ProductList';
 import ProductVariantImage from './ProductVariantImage';
 import useManageProducts from './useManageProducts';
 
+import EditProductInfo from '../product/EditProductInfo';
 const ManageProducts = () => {
   const {
     products,
@@ -16,6 +17,8 @@ const ManageProducts = () => {
     setSelectedCategory,
     isEditing,
     setIsEditing,
+    isProductEditing,
+    setIsProductEditing,
     activeTab,
     setActiveTab,
     isImageModalOpen,
@@ -32,7 +35,9 @@ const ManageProducts = () => {
     handleNewImage,
     handleSaveImages,
     imageData,
-    deleteProductVariant
+    deleteProductVariant,
+    deleteProduct,
+    handleSaveEditProductInfo
   } = useManageProducts();
 
   return (
@@ -48,20 +53,38 @@ const ManageProducts = () => {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           handleSaveProductVariant={handleSaveProductVariant}
-       
+          setIsProductEditing={setIsProductEditing}
+          isProductEditing={isProductEditing}
+
         />
-     
-        <ProductList
-          products={products}
-          isEditing={isEditing}
-          handleEditClick={handleEditClick}
-          setIsImageModalOpen={setIsImageModalOpen}
-          setModifiedProductVariant={setModifiedProductVariant}
-          handleModifiedProductVariantChange={handleModifiedProductVariantChange}
-          deleteProductVariant={deleteProductVariant}
-        />
+        {
+          !isProductEditing && (
+            <ProductList
+              products={products}
+              isEditing={isEditing}
+              handleEditClick={handleEditClick}
+              setIsImageModalOpen={setIsImageModalOpen}
+              setModifiedProductVariant={setModifiedProductVariant}
+              handleModifiedProductVariantChange={handleModifiedProductVariantChange}
+              deleteProductVariant={deleteProductVariant}
+              deleteProduct={deleteProduct}
+            />
+          )
+        }
+
+
+        {
+          isProductEditing && (
+            <EditProductInfo 
+            product={products}
+            categories={categories}
+            onSave={handleSaveEditProductInfo}
+            />
+          )
+        }
+
       </main>
-      {isImageModalOpen  && (
+      {isImageModalOpen && (
         <ProductVariantImage
           currentProduct={currentProduct}
           setIsImageModalOpen={setIsImageModalOpen}

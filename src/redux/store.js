@@ -11,16 +11,22 @@ import { productApi } from './productApi';
 import { categoryApi } from './categoryApi';
 import { authApi } from './authApi';
 import { cartApi } from './cartApi';
+import { sizeApi } from './sizeApi';
 
 // 🧩 Combine all reducers
 const rootReducer = combineReducers({
   products: productsReducer,
   cart: cartReducer,
   users: userReducer,
+
   [productApi.reducerPath]: productApi.reducer,
   [categoryApi.reducerPath]: categoryApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
   [cartApi.reducerPath]: cartApi.reducer,
+  [sizeApi.reducerPath]: sizeApi.reducer,
+
+
+  
 });
 
 // 🧠 Persistence config
@@ -45,7 +51,8 @@ const store = configureStore({
       productApi.middleware,
       categoryApi.middleware,
       authApi.middleware,
-      cartApi.middleware
+      cartApi.middleware,
+      sizeApi.middleware
     ),
 });
 

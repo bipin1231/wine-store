@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Checkbox, Input, Button } from "@nextui-org/react";
 import { useGetCategoryQuery } from '../../../../redux/categoryApi';
 import { useAddProductMutation } from '../../../../redux/productApi';
+import { useGetSizeQuery } from '../../../../redux/sizeApi';
 
 const Label = styled.label`
   display: block;
@@ -50,31 +51,47 @@ const ErrorMessage = styled.p`
   margin-top: 5px;
 `;
 
-const wineSizes = [
-  { value: '180ml', label: 'Split (180ml)' },
-  { value: '375ml', label: 'Half Bottle (375ml)' },
-  { value: '750ml', label: 'Standard (750ml)' },
-  { value: '1.5L', label: 'Litre (1L)' },
-];
+
 
 export default function AddProduct() {
-  const [standardPrice, setStandardPrice] = useState('');
-  const [cartonPrice, setCartonPrice] = useState('');
+  // const [standardPrice, setStandardPrice] = useState('');
+  const [cartonPrice, setCartonPrice] = useState();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [variantImagesMap, setVariantImagesMap] = useState({});
 
   const [addProduct] = useAddProductMutation();
   const { data: categoriesData = [] } = useGetCategoryQuery();
-  const categoryOptions = categoriesData.map(cat => ({ value: cat.name, label: cat.name }));
+  const { data: sizeData = [] } = useGetSizeQuery();
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm({ defaultValues: { sizeStocks: [] } });
+
+  
+const categoryOptions = categoriesData.flatMap(cat => {
+  if (cat.subcategories && cat.subcategories.length > 0) {
+    // Only take subcategories
+    return cat.subcategories.map(sub => ({
+      value: sub.id,
+      label: sub.name
+    }));
+  } else {
+    // No subcategories → take parent
+    return [{
+      value: cat.id,
+      label: cat.name
+    }];
+  }
+});
+
+ 
+  
+
+  const { register, handleSubmit, control, formState: { errors },reset } = useForm({ defaultValues: { sizeStocks: [] } });
   const { fields: sizeFields, append: appendSize, remove: removeSize } = useFieldArray({ control, name: 'sizeStocks' });
 
   const handleSizeCheckboxChange = (isChecked, size) => {
     if (isChecked) {
-      appendSize({ label: size.label, size: size.value, stock: '' });
+      appendSize({ size: size, stock: '' });
     } else {
-      const idx = sizeFields.findIndex(f => f.size === size.value);
+      const idx = sizeFields.findIndex(f => f.size.size === size.size);
       if (idx >= 0) removeSize(idx);
       setVariantImagesMap(prev => {
         const copy = { ...prev };
@@ -84,48 +101,72 @@ export default function AddProduct() {
     }
   };
 
-  const bottlePrice = size => {
-    const sp = parseFloat(standardPrice) || 0;
-    if (size === '180ml') return sp / 4;
-    if (size === '375ml') return sp / 2;
-    if (size === '750ml') return sp;
-    return 0;
-  };
+  // const bottlePrice = size => {
+  //   const sp = parseFloat(standardPrice) || 0;
+  //   if (size === '180ml') return sp / 4;
+  //   if (size === '375ml') return sp / 2;
+  //   if (size === '750ml') return sp;
+  //   return 0;
+  // };
 
-  const bottleCostPrice = size => {
-    const cp = parseFloat(cartonPrice) || 0;
-    if (size === '180ml') return cp / 48;
-    if (size === '375ml') return cp / 24;
-    if (size === '750ml') return cp / 12;
-    return 0;
-  };
+//   const bottleCostPrice = size => {
+//     const cp = parseFloat(cartonPrice) || 0;
+//     console.log(cp/size.bottleInCartoon);
+    
+//  return cp/size.bottleInCartoon;
+//   };
 
   const onSubmit = async formData => {
+     setIsSubmitting(true); 
+    console.log("dasdad",formData);
+    
     const productSize = formData.sizeStocks.map((s, idx) => ({
-      size: s.size,
+      sizeId: s.size.id,
       stock: Number(s.stock),
-      sellingPrice: bottlePrice(s.size),
-      costPrice: bottleCostPrice(s.size),
+      sellingPrice: s.sellingPrice,
+      costPrice: s.costPrice,
       images: variantImagesMap[idx] || []
     }));
 
     const payload = {
-      product: {
+  
         name: formData.name,
-        category: formData?.category?.value,
+        category: formData?.category?.label,
         description: formData?.description,
         cartonPrice: formData.cartonPrice,
         productSize
-      }
+    
     };
+console.log("data to send in backend",payload);
 
-    console.log("payload data", payload);
+     const data=new FormData();
+ data.append('name', payload.name);
+data.append('description', payload.description);
+data.append('category', payload.category); // not 'category'
+
+productSize.forEach((variant, index) => {
+  data.append(`productVariantRequestDto[${index}].stock`, variant.stock);
+  data.append(`productVariantRequestDto[${index}].sellingPrice`, variant.sellingPrice);
+  data.append(`productVariantRequestDto[${index}].costPrice`, variant.costPrice);
+  data.append(`productVariantRequestDto[${index}].cartoonCostPrice`, variant.cartoonCostPrice || '');
+  data.append(`productVariantRequestDto[${index}].cartoonSellingPrice`, variant.cartoonSellingPrice || '');
+  data.append(`productVariantRequestDto[${index}].sizeId`, variant.sizeId);
+
+  (variant.images || []).forEach(file => {
+    data.append(`productVariantRequestDto[${index}].imageUrl`, file);
+  });
+});
+
+ 
 
     try {
-      await addProduct(payload).unwrap();
+      await addProduct(data).unwrap();
       toast.success('Product added!');
-    } catch {
-      toast.error('Failed to add product');
+reset();
+
+    } catch(e) {
+console.log(e);
+
     } finally {
       setIsSubmitting(false);
     }
@@ -149,10 +190,10 @@ export default function AddProduct() {
 
         {/* Prices */}
         <div className='grid grid-cols-2 gap-4'>
-          <FormGroup>
+          {/* <FormGroup>
             <Label>Selling Price (MRP for 750ml)</Label>
             <Input type='number' onChange={e => setStandardPrice(e.target.value)} placeholder='Enter standard price' />
-          </FormGroup>
+          </FormGroup> */}
           <FormGroup>
             <Label>Carton Cost Price</Label>
             <Input {...register('cartonPrice', { required: true })} type='number' onChange={e => setCartonPrice(e.target.value)} placeholder='Enter carton price' />
@@ -163,8 +204,8 @@ export default function AddProduct() {
         <FormGroup>
           <Label>Available Sizes</Label>
           <div className='grid grid-cols-2 gap-2 mt-2'>
-            {wineSizes.map(size => (
-              <Checkbox key={size.value} onChange={e => handleSizeCheckboxChange(e.target.checked, size)}>{size.label}</Checkbox>
+            {sizeData.map(s => (
+              <Checkbox key={s.id} onChange={e => handleSizeCheckboxChange(e.target.checked, s)}>{s.size}</Checkbox>
             ))}
           </div>
         </FormGroup>
@@ -173,11 +214,33 @@ export default function AddProduct() {
         <div className='space-y-6'>
           {sizeFields.map((field, idx) => (
             <div key={field.id} className='p-4 border rounded-lg'>
-              <h3 className='font-medium mb-2'>{field.label}</h3>
-              <div className='flex gap-3 mb-4'>
+              <h3 className='font-medium mb-2'>{field.size.size}</h3>
+              <div className='flex gap-3 mb-4 align-middle justify-center text-center'>
+                <label htmlFor="">Stock</label>
                 <Input type='number' {...register(`sizeStocks.${idx}.stock`, { required: true, min: { value: 0, message: 'Stock must be >= 0' } })} placeholder='Stock' />
-                <Input type='number' value={bottlePrice(field.size)} readOnly placeholder='Selling Price' />
-                <Input type='number' value={bottleCostPrice(field.size)} readOnly placeholder='Cost Price' />
+                  <label htmlFor="">Cost Price</label>
+                      <Input
+  type="number"
+  {...register(`sizeStocks.${idx}.costPrice`, { 
+    required: true, 
+    min: { value: 0, message: 'Price must be >= 0' } 
+  })}
+  placeholder="Cost Price"
+    defaultValue={cartonPrice ? parseFloat(cartonPrice) / field.size.bottleInCartoon : ''}
+
+/>
+
+         
+                <label htmlFor="">Selling Price</label>
+                <Input
+  type="number"
+  {...register(`sizeStocks.${idx}.sellingPrice`, { 
+    required: true, 
+    min: { value: 0, message: 'Price must be >= 0' } 
+  })}
+  placeholder="Selling Price"
+
+/>
               </div>
 
               <input type='file' multiple accept='image/*' onChange={e => {

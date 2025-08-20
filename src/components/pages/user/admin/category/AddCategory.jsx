@@ -77,12 +77,12 @@ function AddCategory({ categoryOptions, onSubmit }) {
       {/* Image Upload with Preview */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Category Image <span className="text-red-500">*</span>
+          Category Image <span className="text-red-500"></span>
         </label>
         <input
           type="file"
           accept="image/*"
-          {...register('image', { required: 'Image is required' })}
+          {...register('image')}
           className="block w-full text-sm text-gray-500
             file:mr-4 file:py-2 file:px-4
             file:rounded-md file:border-0

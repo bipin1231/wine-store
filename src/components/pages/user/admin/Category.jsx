@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useGetCategoryQuery, useAddCategoryMutation, useUpdateCategoryMutation } from '../../../../redux/categoryApi';
+import { useGetCategoryQuery, useAddCategoryMutation, useUpdateCategoryMutation,useDeleteCategoryMutation } from '../../../../redux/categoryApi';
 import Select from 'react-select';
-import AddCategory from './Category/AddCategory';
+import AddCategory from './category/AddCategory';
 import ListCategory from './category/ListCategory';
+
 
 function Category() {
   const { data, isLoading, error,refetch } = useGetCategoryQuery();
   const [updateCategoryMutation]=useUpdateCategoryMutation();
   const [addCategoryMutation] = useAddCategoryMutation();
+  const [deleteCategoryMutation] = useDeleteCategoryMutation();
   const [isEditing, setIsEditing] = useState(false);
   const [isAddCategory,setIsAddCategory] = useState(false);
 
@@ -21,6 +23,8 @@ console.log(data);
   const onSubmit = async (formData) => {
    console.log('Raw formData:', formData);
 
+
+
   const payload = {
     category: formData.category,
     parentCategory: formData?.parentCategory?.value || null,
@@ -32,6 +36,7 @@ console.log(data);
   const data=new FormData();
   data.append('category',payload.category)
   data.append('parentCategory',payload.parentCategory)
+  if(payload.image)
   data.append('image',payload.image)
 
     try {
@@ -76,8 +81,22 @@ if(item?.description)
     }
   }
 
+  const handleCategoryDelete=async(id)=>{
+    console.log(id);
+    try{
+      await deleteCategoryMutation(id)
+      console.log("category deleted successfully");
+      refetch();
+      
+    }catch(e){
+      console.log(e);
+      
+    }
+    
+  }
+
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white shadow-md rounded-lg space-y-6">
+    <div className="p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg space-y-6">
       <h2 className="text-2xl font-semibold text-gray-800">Categories</h2>
 
       {isLoading && <p className="text-gray-500">Loading categories...</p>}
@@ -133,6 +152,7 @@ if(item?.description)
   categories={data}
   isEditing={isEditing}
   onSaveAll={handleSaveAll}
+  onDelete={handleCategoryDelete}
   />
 </div>
    

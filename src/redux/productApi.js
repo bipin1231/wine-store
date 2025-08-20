@@ -24,18 +24,21 @@ export const productApi = createApi({
     }),
     addProduct: builder.mutation({
       query: newProduct => {
-        const formData = new FormData();
-
-        formData.append("product", new Blob([JSON.stringify(newProduct.product)], { type: "application/json" }))
-
-        newProduct.images.forEach(file => {
-          formData.append("images", file)
-
-        });
+        
         return {
           url: '/product',
           method: 'POST',
-          body: formData,
+          body: newProduct,
+        }
+      }
+    }),
+    deleteProduct: builder.mutation({
+      query: id => {
+        
+        return {
+          url: `/product/${id}`,
+          method: 'DELETE',
+    
         }
       }
     }),
@@ -116,5 +119,6 @@ export const { useGetProductsByNameQuery,
   useUpdateProductImageMutation,
   useUpdateProductVariantMutation,
   useUpdateProductVaraintImageMutation,
+  useDeleteProductMutation,
 
 } = productApi;

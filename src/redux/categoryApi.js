@@ -20,9 +20,15 @@ export const categoryApi=createApi({
         method:'PUT',
         body:data,
       })
-    })
+    }),
+    deleteCategory:builder.mutation({
+      query: id =>({
+        url:`/category/${id}`,
+        method:'DELETE',
+      })
+    }),
   })
 
 })
 
-export const {useGetCategoryQuery,useAddCategoryMutation,useUpdateCategoryMutation}=categoryApi;
+export const {useGetCategoryQuery,useAddCategoryMutation,useUpdateCategoryMutation,useDeleteCategoryMutation}=categoryApi;

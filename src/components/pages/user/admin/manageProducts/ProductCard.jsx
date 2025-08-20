@@ -3,7 +3,7 @@ import { FiImage, FiEdit } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import VariantTable from './VariantTable';
 
-const ProductCard = ({ product, isEditing, handleEditClick,setIsImageModalOpen,handleModifiedProductVariantChange,deleteProductVariant }) => {
+const ProductCard = ({ product, isEditing, handleEditClick,setIsImageModalOpen,handleModifiedProductVariantChange,deleteProductVariant,deleteProduct }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,6 +19,9 @@ const ProductCard = ({ product, isEditing, handleEditClick,setIsImageModalOpen,h
             </span>
           </div>
           <p className="text-gray-500 text-sm mt-1">{product.description}</p>
+        </div>
+        <div>
+          <button className='bg-red-500 rounded-md text-slate-50 p-2' onClick={()=>deleteProduct(product.id)}>Delete</button>
         </div>
       </div>
       <VariantTable 

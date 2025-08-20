@@ -7,6 +7,7 @@ import ManageProducts from '../pages/user/admin/manageProducts/ManageProducts'
 import AddProduct from '../pages/user/admin/AddProduct'
 import AuthContainer from '../auth/AuthContainer'
 import Category from '../pages/user/admin/Category'
+import ManageSizes from '../pages/user/admin/manageSize/ManageSizes'
 function AdminRoutes() {
 
   return (
@@ -21,6 +22,7 @@ function AdminRoutes() {
     <Route path='manage-products' element={<ManageProducts/>}/>
     <Route path='category' element={<Category/>}/>
     <Route path='add-products' element={<AddProduct/>}/>
+    <Route path='manage-sizes' element={<ManageSizes/>}/>
     <Route path='login' element={<AuthContainer/>}/>
   
 

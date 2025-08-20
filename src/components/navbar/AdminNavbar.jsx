@@ -42,6 +42,7 @@ export default function AdminNavbar() {
         { path: '/category', label: 'Category' },
     { path: '/manage-products', label: 'Manage Products' },
     { path: '/add-products', label: 'Add Product' },
+    { path: '/manage-sizes', label: 'Manage Sizes' },
     { path: '/customers', label: 'Customers' },
     { path: '/settings', label: 'Settings' },
   ];

@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import {  categories } from './dummyData';
+
 import { useGetProductsQuery } from '../../../../../redux/productApi';
-import { useUpdateProductVariantMutation,useUpdateProductVaraintImageMutation,useDeleteProductVariantMutation } from '../../../../../redux/productApi';
+import { useUpdateProductVariantMutation,useUpdateProductVaraintImageMutation,useDeleteProductVariantMutation,useDeleteProductMutation,useUpdateProductInfoMutation } from '../../../../../redux/productApi';
+import { useGetCategoryQuery } from '../../../../../redux/categoryApi';
 
 export default function useManageProducts() {
   const [isEditing, setIsEditing] = useState(false);
+  const [isProductEditing, setIsProductEditing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState('inventory');
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,6 +17,9 @@ export default function useManageProducts() {
   const [updateProductVariantMutation] = useUpdateProductVariantMutation();
   const [updateProductVariantImageMutation] = useUpdateProductVaraintImageMutation();
   const [deleteProductVariantMutation] = useDeleteProductVariantMutation();
+  const [deleteProductMutation] = useDeleteProductMutation();
+  const {data:categories=[]}=useGetCategoryQuery();
+  const [updateProductInfoMutation]=useUpdateProductInfoMutation()
 
 
   const [imageData,setImageData]=useState([])
@@ -39,14 +44,28 @@ export default function useManageProducts() {
       ...value,
     }));
 
-    console.log("dasssssss",payload);
-    
     try {
       await updateProductVariantMutation(payload);
-      console.log("updated.mojjj gar");
+  
       
       setIsEditing(false);
       //setModifiedProductSize({});
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSaveEditProductInfo = async (data) => {
+    const payload = Object.entries(data).map(([id, value]) => ({
+      id: Number(id),
+      ...value,
+    }));
+
+    try {
+   
+      
+     await updateProductInfoMutation(payload);
+     console.log("updated product info",payload);
     } catch (error) {
       console.error(error);
     }
@@ -134,6 +153,24 @@ try{
   
 }
 }
+const deleteProduct = async (id) => {
+  console.log("product id",id);
+  const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+
+
+  if (!confirmDelete) {
+    console.log("Deletion cancelled.");
+    return;
+  }
+
+  try {
+    await deleteProductMutation(id);
+    console.log("Deleted successfully");
+  } catch (e) {
+    console.log("Error while deleting:", e);
+  }
+};
+
 
 
 
@@ -146,6 +183,8 @@ try{
     setSelectedCategory,
     isEditing,
     setIsEditing,
+    isProductEditing,
+    setIsProductEditing,
     activeTab,
     setActiveTab,
     isImageModalOpen,
@@ -162,7 +201,9 @@ try{
     handleSaveImages,
     handleNewImage,
     imageData,
-    deleteProductVariant
+    deleteProductVariant,
+    deleteProduct,
+    handleSaveEditProductInfo
 
   };
 }
