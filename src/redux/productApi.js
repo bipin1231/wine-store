@@ -8,7 +8,7 @@ export const productApi = createApi({
       query: () => 'product',
     }),
     getProductsBySizeAll: builder.query({
-      query: () => 'product/variant',
+      query: () => 'product/product-size-all',
     }),
     getProductsNameListByName: builder.query({
       query: (query) => `product/search-list?query=${query}`,

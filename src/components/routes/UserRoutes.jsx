@@ -1,11 +1,11 @@
-import HomePage from '../pages/user/HomePage.jsx'
+import HomePage from '../newComponent/HomePage.jsx'
 
 
 
 
 import { Route, Routes } from 'react-router-dom';
 import UserLayout from '../layout/UserLayout.jsx';
-import ProductCatalog from '../pages/user/ProductCatalog.jsx';
+import ProductCatalog from '../newComponent/ProductCatalog.jsx';
 import CollectionPage from '../pages/user/CollectionPage.jsx';
 import ProductPage from '../pages/user/ProductPage.jsx';
 import EnhancedCartPage from '../pages/user/CartPage.jsx';
