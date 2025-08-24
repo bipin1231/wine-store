@@ -103,7 +103,7 @@ navigate(`/product-catalog/${inputValue}`)
   );
 
 const handleUserLogin=()=>{
-  navigate('/login')
+  navigate('/auth')
 }
 
   const baseBg = "bg-[#f8f7f4]";

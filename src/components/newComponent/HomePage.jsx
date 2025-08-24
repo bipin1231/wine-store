@@ -58,7 +58,7 @@ function HomePage() {
           {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6"> */}
              <div className="flex justify-around">
             {categories.map((category, index) => (
-              <div key={index} className="bg-[#f8f7f4] rounded-xl p-6 text-center transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
+              <div key={category.title} className="bg-[#f8f7f4] rounded-xl p-6 text-center transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
                 <div className="w-16 h-16 bg-[#e6d5c1] rounded-full flex items-center justify-center mx-auto mb-4">
                   <category.icon className="w-8 h-8 text-[#8b5a2b]" />
                 </div>

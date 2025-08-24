@@ -2,15 +2,11 @@ import {createApi,fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
 export const authApi=createApi({
   reducerPath:"authApi",
-  baseQuery:fetchBaseQuery({baseUrl:'http://localhost:8080/user'}),
+  baseQuery:fetchBaseQuery({baseUrl:'http://localhost:8080/user',
+     credentials: 'include', // send cookies automatically
 
-    prepareHeaders: (headers) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
-    return headers;
-  },
+  }),
+
 
   endpoints:builder=>({
     signup:builder.mutation({

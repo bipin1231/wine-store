@@ -1,114 +1,63 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+"use client";
+import React, { useState, useRef } from "react";
+import { Wine, Eye, EyeOff, Mail, Lock, User, Calendar, ArrowLeft } from "lucide-react";
+import { FaGoogle, FaFacebook } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 import OtpVerification from "./OtpVerification";
 import { useSignupMutation, useOtpVerificationMutation,useLoginMutation } from "../../redux/authApi";
-import { useNavigate } from "react-router-dom";
 import {setUserInfo} from "../../redux/userSlice"
 import { useDispatch } from "react-redux";
 
-const AuthContainer = () => {
-  const [authMode, setAuthMode] = useState("login"); // "login", "signup", "otp"
-  const [signupData, setSignupData] = useState({});
-  
-  const [signup, { isLoading: isSignupLoading }] = useSignupMutation();
-  const [login, { isLoading: isLoginLoading }] = useLoginMutation();
-  const [verifyOtp, { isLoading: isOtpLoading }] = useOtpVerificationMutation();
-  const navigate=useNavigate();
-  const dispatch=useDispatch();
-  // Fast, snappy animations
-  const containerVariants = {
-    hidden: { opacity: 1 },
-    visible: { opacity: 1 },
-    exit: { opacity: 1 }
-  };
+export default function AuthPage() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [isOtp, setIsOtp] = useState(false);
+   const [signupData, setSignupData] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
+   const dispatch=useDispatch();
 
-  // Different animations for each form type
-  const formVariants = {
-    login: {
-      hidden: { opacity: 0, y: 20, rotateX: 10, scale: 0.95 },
-      visible: { 
-        opacity: 1, 
-        y: 0, 
-        rotateX: 0, 
-        scale: 1,
-        transition: { duration: 0.2, ease: [0.19, 1.0, 0.22, 1.0] }
-      },
-      exit: { 
-        opacity: 0, 
-        y: -20, 
-        rotateX: -10, 
-        scale: 0.95,
-        transition: { duration: 0.15 } 
-      }
-    },
-    signup: {
-      hidden: { opacity: 0, y: 20, rotateX: -5, scale: 0.95 },
-      visible: { 
-        opacity: 1, 
-        y: 0, 
-        rotateX: 0, 
-        scale: 1,
-        transition: { duration: 0.2, ease: [0.19, 1.0, 0.22, 1.0] }
-      },
-      exit: { 
-        opacity: 0, 
-        y: -20, 
-        rotateX: 5, 
-        scale: 0.95,
-        transition: { duration: 0.15 } 
-      }
-    },
-    otp: {
-      hidden: { opacity: 0, scale: 0.8 },
-      visible: { 
-        opacity: 1, 
-        scale: 1,
-        transition: { 
-          duration: 0.25,
-          type: "spring",
-          stiffness: 400,
-          damping: 10
-        }
-      },
-      exit: { 
-        opacity: 0, 
-        scale: 1.1,
-        transition: { duration: 0.15 } 
-      }
-    }
-  };
+    const [signup, { isLoading: isSignupLoading }] = useSignupMutation();
+    const [login, { isLoading: isLoginLoading }] = useLoginMutation();
+    const [verifyOtp, { isLoading: isOtpLoading }] = useOtpVerificationMutation();
 
-  const handleSignup = async (data) => {
+
+
+  const handleLoginSubmit =  async (data) => {
+      console.log("Login data:", data);
+      try {
+       const res= await login(data).unwrap();
+    
+       console.log(res);
+       
+      console.log("login successfullllyyyy");
+     dispatch(setUserInfo(res))
+      navigate("/");
+      } catch (error) {
+        console.error("login failed:", error);
+        // You could add toast notifications here
+      }
+    };
+
+
+
+  const handleSignupSubmit = async (data) => {
     setSignupData(data);
     
     try {
       await signup(data).unwrap();
-      setAuthMode("otp");
+     setIsOtp(true)
     } catch (error) {
       console.error("Signup failed:", error);
       // You could add toast notifications here
     }
   };
 
-  const handleLogin = async (data) => {
-    console.log("Login data:", data);
-    try {
-     const res= await login(data).unwrap();
-     localStorage.setItem("token", res.token);
-     console.log(res);
-     
-    console.log("login successfullllyyyy");
-    dispatch(setUserInfo(res))
-    navigate("/");
-    } catch (error) {
-      console.error("login failed:", error);
-      // You could add toast notifications here
-    }
-  };
 
-  const handleOtpSubmit = async (otp) => {
+    const handleOtpSubmit = async (otp) => {
     try {
      const res= await verifyOtp({ email: signupData.email, otp }).unwrap();
       // Handle successful verification (redirect to dashboard, etc.)
@@ -133,121 +82,194 @@ const AuthContainer = () => {
     }
   };
 
-  const toggleAuthMode = () => {
-    setAuthMode(authMode === "login" ? "signup" : "login");
-  };
-
-  // Modern backdrop gradient that shifts based on auth mode
-  const getBackdropStyle = () => {
-    switch(authMode) {
-      case "login":
-        return "bg-gradient-to-br from-blue-50 to-indigo-100";
-      case "signup":
-        return "bg-gradient-to-br from-purple-50 to-pink-100";
-      case "otp":
-        return "bg-gradient-to-br from-green-50 to-emerald-100";
-      default:
-        return "bg-gray-100";
-    }
-  };
+  const baseBg = "bg-[#f8f7f4]";
+  const baseText = "text-[#2c2c2c]";
+  const buttonStyle =
+    "bg-[#2c2c2c] text-white rounded-full px-6 py-3 transition-all hover:opacity-90 font-medium hover:shadow-lg";
 
   return (
-    <motion.div 
-      className={`flex items-center justify-center min-h-screen p-4 transition-colors duration-700 ${getBackdropStyle()}`}
-      initial={false}
-      animate={{ backgroundColor: authMode === "login" ? "#f3f4f6" : authMode === "signup" ? "#faf5ff" : "#ecfdf5" }}
-      transition={{ duration: 0.6 }}
+    <div
+      className={`min-h-screen flex flex-col ${baseBg} ${baseText} font-sans overflow-hidden relative`}
+      ref={containerRef}
     >
-      <motion.div 
-        className="bg-white p-6 md:p-8 rounded-2xl shadow-lg w-full max-w-md overflow-hidden relative"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        layoutId="authContainer"
-      >
-        {authMode === "login" && (
-          <motion.div
-            key="login"
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={formVariants.login}
+      {/* Header */}
+      {
+        !isOtp &&
+        <>
+          <header className="sticky top-0 z-50 py-4 px-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => navigate("/")}
+            className="flex items-center text-sm font-medium text-[#8b5a2b] hover:text-[#a63f3f] transition-colors group"
           >
-            <LoginForm 
-              onSubmit={handleLogin} 
-              onToggleMode={toggleAuthMode}
-              isLoading={false}
-            />
-          </motion.div>
-        )}
-        
-        {authMode === "signup" && (
-          <motion.div
-            key="signup"
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={formVariants.signup}
-          >
-            <SignupForm 
-              onSubmit={handleSignup} 
-              onToggleMode={toggleAuthMode}
-              isLoading={isSignupLoading}
-            />
-          </motion.div>
-        )}
-        
-        {authMode === "otp" && (
-          <motion.div
-            key="otp"
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={formVariants.otp}
-          >
-            <OtpVerification 
-              length={4} 
-              onSubmit={handleOtpSubmit} 
-              onResend={handleResendOtp}
-              isLoading={isOtpLoading}
-            />
-          </motion.div>
-        )}
-        
-        {/* Interactive background elements */}
-        <motion.div 
-          className="absolute -z-10 w-64 h-64 rounded-full bg-opacity-30"
-          style={{ 
-            background: authMode === "login" ? "radial-gradient(circle, rgba(79,70,229,0.1) 0%, rgba(0,0,0,0) 70%)" : 
-                      authMode === "signup" ? "radial-gradient(circle, rgba(219,39,119,0.1) 0%, rgba(0,0,0,0) 70%)" :
-                      "radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(0,0,0,0) 70%)"
-          }}
-          initial={{ bottom: -100, right: -100 }}
-          animate={{ 
-            bottom: authMode === "login" ? -80 : authMode === "signup" ? -100 : -120,
-            right: authMode === "login" ? -50 : authMode === "signup" ? -100 : -80,
-          }}
-          transition={{ duration: 0.5 }}
-        />
-        
-        <motion.div 
-          className="absolute -z-10 w-40 h-40 rounded-full bg-opacity-30"
-          style={{ 
-            background: authMode === "login" ? "radial-gradient(circle, rgba(99,102,241,0.1) 0%, rgba(0,0,0,0) 70%)" : 
-                      authMode === "signup" ? "radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(0,0,0,0) 70%)" :
-                      "radial-gradient(circle, rgba(5,150,105,0.1) 0%, rgba(0,0,0,0) 70%)"
-          }}
-          initial={{ top: -60, left: -60 }}
-          animate={{ 
-            top: authMode === "login" ? -40 : authMode === "signup" ? -60 : -80,
-            left: authMode === "login" ? -30 : authMode === "signup" ? -60 : -40,
-          }}
-          transition={{ duration: 0.5 }}
-        />
-      </motion.div>
-    </motion.div>
-  );
-};
+            <ArrowLeft size={16} className="mr-1 group-hover:-translate-x-1 transition-transform" />
+            Back To Home
+          </motion.button>
 
-export default AuthContainer;
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-xl font-bold flex items-center"
+          >
+            <Wine className="text-[#a63f3f] mr-1 h-5 w-5" />
+            <span className="text-[#2c2c2c]">Vino</span>
+            <span className="text-[#a63f3f]">Selecto</span>
+          </motion.div>
+
+          <div className="w-10"></div>
+        </div>
+      </header>
+        </>
+}
+    
+
+      {/* Centered Form */}
+      <div className="flex-grow flex items-center justify-center px-4 py-8 md:py-12 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-lg"
+        >
+
+        {
+          !isOtp && (
+            <>
+             {/* Tab selector */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex border-b border-gray-200 mb-8 relative"
+          >
+            <button
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-4 text-center font-medium transition-colors relative ${
+                isLogin ? "text-[#8b5a2b]" : "text-gray-500 hover:text-[#8b5a2b]"
+              }`}
+            >
+              Sign In
+              {isLogin && (
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#8b5a2b]"
+                  layoutId="authIndicator"
+                />
+              )}
+            </button>
+            <button
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-4 text-center font-medium transition-colors relative ${
+                !isLogin ? "text-[#8b5a2b]" : "text-gray-500 hover:text-[#8b5a2b]"
+              }`}
+            >
+              Create Account
+              {!isLogin && (
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#8b5a2b]"
+                  layoutId="authIndicator"
+                />
+              )}
+            </button>
+          </motion.div>
+            </>
+          )
+        }  
+         
+
+          {/* Form */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isLogin ? "login" : "signup"}
+              initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isLogin ? 20 : -20 }}
+              transition={{ duration: 0.3 }}
+            >
+            {
+              isLogin?
+              <LoginForm
+              onSubmit={handleLoginSubmit}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              />:
+              (!isOtp?
+              <SignupForm
+              onSubmit={handleSignupSubmit}
+              showPassword={showPassword}
+                 setShowPassword={setShowPassword}
+              />:
+              <OtpVerification
+              onSubmit={handleOtpSubmit}
+              onResend={handleResendOtp}
+              setIsOtp={setIsOtp}
+              />
+              )
+            }
+
+   {
+                  !isOtp && <>
+                  
+                     {/* Divider */}
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-[#f8f7f4] text-gray-500">Or continue with</span>
+                  </div>
+                </div>
+             
+                {/* Social login */}
+                <div className="mt-8">
+                  <div className="flex justify-center space-x-4">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      className="p-3 rounded-full border border-gray-200 hover:border-[#a63f3f] hover:text-[#a63f3f] transition"
+                    >
+                      <FaGoogle />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      className="p-3 rounded-full border border-gray-200 hover:border-[#8b5a2b] hover:text-[#8b5a2b] transition"
+                    >
+                      <FaFacebook />
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+
+
+              {/* Switch */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 text-center text-sm text-gray-600"
+              >
+                {isLogin ? "Don't have an account? " : "Already have an account? "}
+                <button
+                  type="button"
+                  className="font-medium text-[#8b5a2b] hover:text-[#a63f3f]"
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? "Sign up" : "Sign in"}
+                </button>
+              </motion.p>
+                  
+                  </>
+                }
+
+
+           
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+
+        
+                       
+      </div>
+    </div>
+  );
+}
