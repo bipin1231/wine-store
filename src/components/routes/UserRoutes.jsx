@@ -11,6 +11,11 @@ const EnhancedCartPage = lazy(() => import("../pages/user/CartPage.jsx"));
 import AuthContainer from "../auth/AuthContainer.jsx";
 import AuthLayout from '../layout/AuthLayout.jsx';
 import UserLayout from '../layout/UserLayout.jsx';
+import CartLayout from '../layout/CartLayout.jsx';
+import CheckoutPage from '../newComponent/CheckoutPage.jsx';
+import PaymentPage from '../newComponent/PaymentPage.jsx';
+import UserProfilePage from '../newComponent/UserProfile.jsx';
+import NormalLayout from '../layout/NormalLayout.jsx';
 export default function UserRoutes() {
   return (
     <Routes>
@@ -21,17 +26,30 @@ export default function UserRoutes() {
         <Route path='product-catalog/:search' element={<ProductCatalog />} />
         <Route path='product-catalog' element={<ProductCatalog />} />
         <Route path='collection-page' element={<CollectionPage />} />
+        <Route path='checkout' element={<CheckoutPage />} />
+        <Route path='checkout/payment' element={<PaymentPage />} />
 
         <Route path='product-page/:productId' element={<ProductPage />} />
-        <Route path='cart-page' element={<EnhancedCartPage />} />
-     
+
+
+
+
 
       </Route>
       {/* Auth Layout */}
       <Route element={<AuthLayout />}>
         <Route path="auth" element={<AuthContainer />} />
-     
+
       </Route>
+      <Route element={<CartLayout />}>
+        <Route path="cart-page" element={<EnhancedCartPage />} />
+
+      </Route>
+      <Route element={<NormalLayout />}>
+        <Route path='profile' element={<UserProfilePage />} />
+
+      </Route>
+
     </Routes>
   )
 }

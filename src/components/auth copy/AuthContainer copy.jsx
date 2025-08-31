@@ -96,10 +96,8 @@ const AuthContainer = () => {
     console.log("Login data:", data);
     try {
      const res= await login(data).unwrap();
-     localStorage.setItem("token", res.token);
-     console.log(res);
-     
-    console.log("login successfullllyyyy");
+      console.log("login successfully",res);
+      
     dispatch(setUserInfo(res))
     navigate("/");
     } catch (error) {

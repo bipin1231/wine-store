@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect} from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -6,14 +6,30 @@ import { Route, Routes, RouterProvider, BrowserRouter, createRoutesFromElements 
 import UserLayout from './components/layout/UserLayout'
 import UserRoutes from './components/routes/UserRoutes'
 import AdminRoutes from './components/routes/AdminRoutes'
+import { setUserInfo } from "./redux/userSlice";
+import { useDispatch } from "react-redux";
+import { useGetCurrentUserQuery } from './redux/authApi'
+import { ToastContainer } from "react-toastify";
 
 
 function App() {
+
+   const dispatch = useDispatch();
+  const { data, isSuccess } = useGetCurrentUserQuery();
+  console.log("fsfsdfsdfsdfsf",data);
+
+
+  useEffect(() => {
+
+      dispatch(setUserInfo(data)); //  set user in redux after refresh
+
+  }, [isSuccess, data, dispatch]);
 
   const userType = "user"
 
   return (
     <BrowserRouter>
+     <ToastContainer position="top-right" autoClose={2000} />
       <Routes>
 {
   userType==="admin"?(

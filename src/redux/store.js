@@ -12,6 +12,13 @@ import { categoryApi } from './categoryApi';
 import { authApi } from './authApi';
 import { cartApi } from './cartApi';
 import { sizeApi } from './sizeApi';
+import { deliveryApi } from './deliveryApi';
+import {orderApi} from './orderApi'
+import { loadState, saveState } from '../session/sessionStorage';
+
+
+// Load checkout state if exists
+const persistedCheckout = loadState();
 
 // 🧩 Combine all reducers
 const rootReducer = combineReducers({
@@ -24,9 +31,11 @@ const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [cartApi.reducerPath]: cartApi.reducer,
   [sizeApi.reducerPath]: sizeApi.reducer,
+  [deliveryApi.reducerPath]: deliveryApi.reducer,
+  [orderApi.reducerPath]: orderApi.reducer,
 
 
-  
+
 });
 
 // 🧠 Persistence config
@@ -52,8 +61,21 @@ const store = configureStore({
       categoryApi.middleware,
       authApi.middleware,
       cartApi.middleware,
-      sizeApi.middleware
+      sizeApi.middleware,
+      deliveryApi.middleware,
+      orderApi.middleware,
+
     ),
+      // hydrate checkout session state here
+  preloadedState: { products: persistedCheckout }, 
+});
+
+// Subscribe: save checkout state to sessionStorage whenever it changes
+store.subscribe(() => {
+  const state = store.getState();
+  if (state.products) {
+    saveState(state.products); // only save checkout part
+  }
 });
 
 // 🚀 Create persistor

@@ -23,6 +23,12 @@ export const authApi=createApi({
         body:data,
       })
     }),
+    logout:builder.mutation({
+      query: ()=>({
+        url:"/logout",
+        method:'POST',
+      })
+    }),
     otpVerification:builder.mutation({
       query: ({email,otp})=>({
         url:'/verify-otp',
@@ -30,11 +36,11 @@ export const authApi=createApi({
           body:{email,otp},
       })
     }),
-    getCategory:builder.query({
-      query:()=>'category',
-    })
+ getCurrentUser: builder.query({
+      query: () => "/me",
+    }),
   })
 
 })
 
-export const {useSignupMutation,useOtpVerificationMutation,useLoginMutation }=authApi;
+export const {useSignupMutation,useOtpVerificationMutation,useLoginMutation,useGetCurrentUserQuery ,useLogoutMutation}=authApi;

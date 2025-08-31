@@ -49,6 +49,8 @@ function HomePage() {
   
   
     const {data:productData=[]}=useGetProductsBySizeAllQuery();
+    console.log(productData);
+    
   return (
     <>
     <LiquorHero/>
@@ -80,7 +82,7 @@ function HomePage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {productData.map(product => (
-              <ProductCard key={product.productSizeId} product={product} />
+              <ProductCard key={product.productVariantId} product={product} />
             ))}
           </div>
         </div>

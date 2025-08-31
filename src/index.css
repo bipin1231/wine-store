@@ -5,3 +5,4 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+.input { @apply w-full px-3 py-2 border rounded-lg focus:ring-[#8b5a2b]; }

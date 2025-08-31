@@ -1,39 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { Star, Minus, Plus, ChevronLeft, ChevronRight, Heart, Share, Shield, Truck, RotateCw } from "lucide-react";
-import { useParams, useNavigate,useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@nextui-org/button";
 import { useGetProductsByIdQuery } from "../../../redux/productApi";
 import { useAddToCartMutation } from "../../../redux/cartApi";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-toastify";
+import { setCheckoutProduct, clearCheckoutProduct } from "../../../redux/productsSlice";
 
 export default function ProductPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { productSizeId } = location.state || {};
-  console.log("product id",productId);
-  console.log("product size id",productSizeId);
+  console.log("product id", productId);
+  console.log("product size id", productSizeId);
 
   const { data: product, error, isLoading } = useGetProductsByIdQuery(productId);
 
-  console.log("product data",product);
-  
+  console.log("product data", product);
+
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const dispatch = useDispatch();
 
   const [addToCart] = useAddToCartMutation();
   const userInfo = useSelector((state) => state.users.userInfo);
-  const userId = userInfo?.user?.id;
+  const userId = userInfo?.id;
 
   // Set initial size
   useEffect(() => {
     const foundSize = product?.productVariant.find(s => s.productSizeId === productSizeId);
-    console.log("found size",foundSize);
-    
-   setSelectedSize(foundSize);
+    console.log("found size", foundSize);
+
+    setSelectedSize(foundSize);
   }, [product]);
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
@@ -55,20 +59,28 @@ export default function ProductPage() {
 
   const addItemToCart = async () => {
     if (!selectedSize) return alert("Please select a size.");
-    if (!userId) return alert("Please login to add to cart.");
+    if (!userId) {
+      toast.error("Please Login Before Adding To Cart");
+      return;
+    }
+
 
     const cartProduct = {
       userId: userId,
       productId: product.id,
-      sizeId: selectedSize.id,
+      productVariantId: selectedSize.id,
       quantity,
     };
 
     try {
+      setIsButtonDisabled(true)
       await addToCart(cartProduct).unwrap();
+      toast.success("Successfully Added to Cart")
       console.log("Added to cart:", cartProduct);
     } catch (e) {
-      console.log("Failed to add:", e);
+      toast.error("Failed to add");
+    } finally {
+      setIsButtonDisabled(false)
     }
   };
 
@@ -76,15 +88,21 @@ export default function ProductPage() {
     if (!selectedSize) return alert("Please select a size.");
     if (!userId) return alert("Please login to proceed with purchase.");
 
-    const cartProduct = {
-      userId: userId,
-      productId: product.id,
-      sizeId: selectedSize.id,
-      quantity,
-    };
+    console.log("selectde product info", selectedSize);
+
 
     try {
-      await addToCart(cartProduct).unwrap();
+      dispatch(clearCheckoutProduct())
+      dispatch(setCheckoutProduct({
+        name: product.name,
+        productId: product.id,
+        ...selectedSize,
+        quantity: quantity,
+
+      }))
+
+
+      //   await addToCart(cartProduct).unwrap();
       // Redirect to checkout page
       navigate('/checkout');
     } catch (e) {
@@ -100,14 +118,14 @@ export default function ProductPage() {
       </div>
     </div>
   );
-  
+
   if (error || !product) return (
     <div className="flex justify-center items-center h-screen bg-[#f8f7f4]">
       <div className="text-center p-8 bg-white rounded-2xl shadow-sm max-w-md">
         <div className="text-red-500 text-5xl mb-4">⚠️</div>
         <h3 className="text-xl font-bold text-gray-800 mb-2">Product Not Found</h3>
         <p className="text-gray-600 mb-6">The product you're looking for doesn't exist or may have been removed.</p>
-        <Button 
+        <Button
           onClick={() => window.history.back()}
           className="bg-[#2c2c2c] text-white px-6 py-3 rounded-full font-medium"
         >
@@ -136,7 +154,7 @@ export default function ProductPage() {
                       className="object-contain w-full h-full p-6"
                       onError={(e) => (e.target.style.display = "none")}
                     />
-                    
+
                     {/* Navigation */}
                     {images.length > 1 && (
                       <>
@@ -158,17 +176,17 @@ export default function ProductPage() {
                         </motion.button>
                       </>
                     )}
-                    
+
                     {/* Image counter */}
                     {images.length > 1 && (
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
                         {currentImageIndex + 1} / {images.length}
                       </div>
                     )}
-                    
+
                     {/* Action buttons */}
                     <div className="absolute top-4 right-4 flex flex-col gap-2">
-                      <motion.button 
+                      <motion.button
                         className="bg-white p-2.5 rounded-full shadow-md hover:bg-gray-50 transition-colors"
                         onClick={() => setIsWishlisted(!isWishlisted)}
                         whileHover={{ scale: 1.1 }}
@@ -176,7 +194,7 @@ export default function ProductPage() {
                       >
                         <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
                       </motion.button>
-                      <motion.button 
+                      <motion.button
                         className="bg-white p-2.5 rounded-full shadow-md hover:bg-gray-50 transition-colors"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
@@ -191,7 +209,7 @@ export default function ProductPage() {
                   </div>
                 )}
               </div>
-              
+
               {/* Thumbnails */}
               {images.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto py-2">
@@ -199,9 +217,8 @@ export default function ProductPage() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                        currentImageIndex === index ? 'border-[#8b5a2b]' : 'border-transparent'
-                      }`}
+                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${currentImageIndex === index ? 'border-[#8b5a2b]' : 'border-transparent'
+                        }`}
                     >
                       <img
                         src={`http://localhost:8080/images/${img}`}
@@ -242,19 +259,19 @@ export default function ProductPage() {
                       In Stock: {selectedSize.stock} units
                     </p>
                   </div>
-                  
+
                   {/* Quantity */}
                   <div className="flex flex-col items-end">
                     <span className="text-sm font-medium text-gray-600 mb-1">Quantity</span>
                     <div className="flex items-center border border-gray-200 rounded-full">
-                      <button 
+                      <button
                         className="p-2 text-gray-600 hover:bg-gray-50 rounded-l-full"
                         onClick={decrementQuantity}
                       >
                         <Minus className="h-4 w-4" />
                       </button>
                       <span className="w-8 text-center font-medium">{quantity}</span>
-                      <button 
+                      <button
                         className="p-2 text-gray-600 hover:bg-gray-50 rounded-r-full"
                         onClick={incrementQuantity}
                       >
@@ -274,11 +291,10 @@ export default function ProductPage() {
                       <motion.button
                         key={s.id}
                         onClick={() => setSelectedSize(s)}
-                        className={`px-5 py-3 rounded-xl font-medium transition-all ${
-                          selectedSize?.id === s.id
+                        className={`px-5 py-3 rounded-xl font-medium transition-all ${selectedSize?.id === s.id
                             ? "bg-[#2c2c2c] text-white shadow-md"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                          }`}
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -290,7 +306,7 @@ export default function ProductPage() {
               )}
 
               {/* Action Buttons */}
-              <motion.div 
+              <motion.div
                 className="pt-4 grid grid-cols-2 gap-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -299,6 +315,7 @@ export default function ProductPage() {
                 <Button
                   className="w-full bg-white border border-[#2c2c2c] text-[#2c2c2c] py-6 rounded-xl font-medium text-lg hover:bg-gray-50"
                   onClick={addItemToCart}
+                  disabled={isButtonDisabled}
                 >
                   Add to Cart
                 </Button>
@@ -355,7 +372,7 @@ export default function ProductPage() {
         {/* Reviews Section */}
         <div className="mt-12 bg-white rounded-3xl shadow-sm p-8">
           <h2 className="text-2xl font-bold text-[#2c2c2c] mb-6">Customer Reviews</h2>
-          
+
           <div className="flex items-center mb-8">
             <div className="flex items-center mr-4">
               <div className="text-3xl font-bold text-[#2c2c2c] mr-2">4.8</div>
@@ -367,7 +384,7 @@ export default function ProductPage() {
             </div>
             <div className="text-gray-600">Based on 128 reviews</div>
           </div>
-          
+
           <div className="grid gap-6 md:grid-cols-2">
             {/* Review items would go here */}
             <div className="text-center py-12 text-gray-500 col-span-2">

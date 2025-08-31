@@ -3,7 +3,11 @@ import { baseQueryWithAuth } from './baseQuery';
 
 export const cartApi=createApi({
   reducerPath:"cartApi",
-  baseQuery:baseQueryWithAuth,
+  baseQuery:fetchBaseQuery({baseUrl:'http://localhost:8080/',
+     credentials: 'include', // send cookies automatically
+
+  }),
+
   endpoints:builder=>({
     addToCart:builder.mutation({
       query: cartItem=>({

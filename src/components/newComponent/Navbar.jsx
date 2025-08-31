@@ -1,8 +1,58 @@
-import React from 'react'
+import React,{useState} from 'react'
 import {  ChevronDown} from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink ,useLocation} from "react-router-dom";
+import { Wine, Grape, Beer, Martini, Star, ShoppingCart, Plus } from "lucide-react";
+const categories = [
+  {
+    title: "Wine",
+    icon: Wine,
+    items: [
+      { name: "Red Wine", href: "/wine/red" },
+      { name: "White Wine", href: "/wine/white" },
+    ],
+  },
+  {
+    title: "Spirits",
+    icon: Martini,
+    items: [
+      { name: "Whiskey", href: "/spirits/whiskey" },
+      { name: "Vodka", href: "/spirits/vodka" },
+      { name: "Gin", href: "/spirits/gin" },
+      { name: "Rum", href: "/spirits/rum" },
+    ],
+  },
+  {
+    title: "Beer",
+    icon: Beer,
+    items: [
+      { name: "Craft Beer", href: "/beer/craft" },
+      { name: "Light Beer", href: "/beer/import" },
+      { name: "Strong", href: "/beer/domestic" },
+      { name: "Super Strong", href: "/beer/light" },
+    ],
+  },
+];
 
-function Navbar({categories,isCategoryActive,activeDropdown,setActiveDropdown}) {
+function Navbar() {
+    const location = useLocation();
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+    const isCategoryActive = (category) => {
+    const path = location.pathname.toLowerCase();
+
+    // highlight if parent matches
+    if (path.includes(category.title.toLowerCase())) return true;
+
+    // highlight if any item inside matches
+    if (category.items) {
+      return category.items.some(item =>
+        path.includes(item.name.toLowerCase())
+      );
+    }
+
+    return false;
+  };
+
   return (
      <nav className="hidden lg:flex justify-center gap-4 py-4 bg-white font-medium z-40 relative shadow-sm">
         <NavLink

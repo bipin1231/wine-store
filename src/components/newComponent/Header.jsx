@@ -1,84 +1,57 @@
 "use client";
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaSearch, FaMapMarkerAlt, FaUser, FaHeart, FaShoppingCart, FaStar, FaPlus } from "react-icons/fa";
-import { Wine, Grape, Beer, Martini, ChevronDown, Star, ShoppingCart, Plus } from "lucide-react";
-import { Link, NavLink, useLocation,useNavigate } from "react-router-dom";
-import { useGetProductsBySizeAllQuery, useGetProductsNameListByNameQuery } from "../../redux/productApi";
+import { Wine, Beer, Martini } from "lucide-react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useGetProductsNameListByNameQuery } from "../../redux/productApi";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "./Navbar";
 import { debounce } from "lodash";
+import { useSelector,shallowEqual } from 'react-redux';
+import { useLogoutMutation } from "../../redux/authApi";
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "../../redux/userSlice";
 
-const categories = [
-  {
-    title: "Wine",
-    icon: Wine,
-    items: [
-      { name: "Red Wine", href: "/wine/red" },
-      { name: "White Wine", href: "/wine/white" },
-    ],
-  },
-  {
-    title: "Spirits",
-    icon: Martini,
-    items: [
-      { name: "Whiskey", href: "/spirits/whiskey" },
-      { name: "Vodka", href: "/spirits/vodka" },
-      { name: "Gin", href: "/spirits/gin" },
-      { name: "Rum", href: "/spirits/rum" },
-    ],
-  },
-  {
-    title: "Beer",
-    icon: Beer,
-    items: [
-      { name: "Craft Beer", href: "/beer/craft" },
-      { name: "Light Beer", href: "/beer/import" },
-      { name: "Strong", href: "/beer/domestic" },
-      { name: "Super Strong", href: "/beer/light" },
-    ],
-  },
-];
 
 export default function HomePage() {
   const location = useLocation();
+  const userStoredData = useSelector(state => state.users.userInfo,shallowEqual)
+  console.log("userstoreddata", userStoredData);
 
-
-  const isCategoryActive = (category) => {
-    const path = location.pathname.toLowerCase();
-
-    // highlight if parent matches
-    if (path.includes(category.title.toLowerCase())) return true;
-
-    // highlight if any item inside matches
-    if (category.items) {
-      return category.items.some(item =>
-        path.includes(item.name.toLowerCase())
-      );
-    }
-
-    return false;
-  };
-
-  const [activeDropdown, setActiveDropdown] = useState(null);
   const [cartItems, setCartItems] = useState(0);
   const [wishlist, setWishlist] = useState([]);
   const [inputValue, setInputValue] = useState(""); // instant UI updates
   const [searchQuery, setSearchQuery] = useState(""); // debounced API query
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [filteredProducts, setFilteredProducts] = useState([])
-  const navigate=useNavigate();
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [showUserDropdown, setShowUserDropdown] = useState(false); // New state for user dropdown
+  const navigate = useNavigate();
+const [logoutMutation]=useLogoutMutation();
+  const dispatch = useDispatch();
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside the user dropdown
+      if (showUserDropdown && !event.target.closest('.user-dropdown-container')) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserDropdown]);
+
   const handleSearch = (e) => {
-
-if(inputValue && (e?.key=='Enter' || e=='Enter')){
-navigate(`/product-catalog/${inputValue}`)
-}
-
+    if (inputValue && (e?.key == 'Enter' || e == 'Enter')) {
+      navigate(`/product-catalog/${inputValue}`)
+    }
   }
-
 
   const debouncedSetSearchQuery = useCallback(
     debounce((val) => {
-      // Don’t trigger API if user is deleting (val shorter than before)
+      // Don't trigger API if user is deleting (val shorter than before)
       if (val.length >= searchQuery.length || !searchQuery.includes(val)) {
         setSearchQuery(val.toLowerCase());
       }
@@ -93,18 +66,39 @@ navigate(`/product-catalog/${inputValue}`)
     };
   }, [debouncedSetSearchQuery]);
 
-  console.log("input seacrhc quer",inputValue);
-  
-  console.log("API search query is ", searchQuery);
-
   const { data: productNameList = [] } = useGetProductsNameListByNameQuery(
     searchQuery,
     { skip: !searchQuery }
   );
 
-const handleUserLogin=()=>{
-  navigate('/auth')
-}
+  const handleUserLogin = () => {
+    navigate('/auth')
+  }
+
+  const handleLogout = async () => {
+    // Add your logout logic here
+    try {
+      await logoutMutation();
+      dispatch(setUserInfo(null))
+       console.log("Logging out...");
+
+    } catch (error) {
+      console.log("failed to logout",error);
+      
+      
+    }
+  
+
+    // For example: dispatch logout action
+    setShowUserDropdown(false);
+  }
+
+  const handleProfile = () => {
+    // Add your profile navigation logic here
+    console.log("Going to profile...");
+    navigate('/profile');
+    setShowUserDropdown(false);
+  }
 
   const baseBg = "bg-[#f8f7f4]";
   const baseText = "text-[#2c2c2c]";
@@ -112,6 +106,7 @@ const handleUserLogin=()=>{
   const highlight = "text-[#a63f3f]";
   const buttonStyle = "bg-[#2c2c2c] text-white rounded-full px-6 py-2 transition hover:opacity-90 shadow-md";
   const inputStyle = "bg-white border border-gray-200 rounded-full px-4 py-3 w-full focus:outline-none focus:ring-1 focus:ring-[#8b5a2b]";
+
   return (
     <div className="bg-[#f8f7f4]font-sans text-[#2c2c2c]">
       {/* Navbar */}
@@ -129,47 +124,46 @@ const handleUserLogin=()=>{
                 placeholder="Search for wines, spirits, beer..."
                 className={inputStyle}
                 value={inputValue}
-                onKeyDown={(e)=>handleSearch(e)}
+                onKeyDown={(e) => handleSearch(e)}
                 onChange={(e) => {
                   const val = e.target.value;
                   setInputValue(val); // update UI immediately
                   debouncedSetSearchQuery(val); // debounce API call
                 }}
-                 onFocus={() => setIsSearchActive(true)}
-    onBlur={() => setTimeout(() => setIsSearchActive(false), 150)} // delay to allow click
-
+                onFocus={() => setIsSearchActive(true)}
+                onBlur={() => setTimeout(() => setIsSearchActive(false), 150)} // delay to allow click
               />
               <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                 <FaSearch onClick={() => handleSearch('Enter')} />
               </button>
               <AnimatePresence>
-    {isSearchActive && productNameList.length > 0 && inputValue && (
-      <motion.ul
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-      >
-        {productNameList.map((name, index) => (
-          <Link
-          to={`product-catalog/${name}`}
-          >
-          <li
-            key={index}
-            className="px-4 py-2 cursor-pointer hover:bg-[#f1f1f1] transition"
-            onMouseDown={() => { // use onMouseDown to avoid blur before click
-              setInputValue(name);
-              setSearchQuery(name);
-              setIsSearchActive(false);
-            }}
-          >
-            {name}
-          </li>
-          </Link>
-        ))}
-      </motion.ul>
-    )}
-  </AnimatePresence>
+                {isSearchActive && productNameList.length > 0 && inputValue && (
+                  <motion.ul
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  >
+                    {productNameList.map((name, index) => (
+                      <Link
+                        to={`product-catalog/${name}`}
+                        key={index}
+                      >
+                        <li
+                          className="px-4 py-2 cursor-pointer hover:bg-[#f1f1f1] transition"
+                          onMouseDown={() => { // use onMouseDown to avoid blur before click
+                            setInputValue(name);
+                            setSearchQuery(name);
+                            setIsSearchActive(false);
+                          }}
+                        >
+                          {name}
+                        </li>
+                      </Link>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -188,13 +182,56 @@ const handleUserLogin=()=>{
               )}
             </button>
 
-            <button className="relative p-2">
-              <FaUser
-              onClick={()=>handleUserLogin()}
-              className="text-gray-700" 
-              />
-            </button>
+            {/* Updated User Button Section */}
+            <div className="relative user-dropdown-container">
+              {userStoredData ? (
+                // Show dropdown when user is logged in
+                <>
+                  <button 
+                    className="relative p-2"
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  >
+                    <FaUser className="text-gray-700" />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {showUserDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                      >
+                        <button
+                          onClick={handleProfile}
+                          className="w-full text-left px-4 py-2 hover:bg-[#f1f1f1] transition text-sm border-b border-gray-100"
+                        >
+                          Profile
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-4 py-2 hover:bg-[#f1f1f1] transition text-sm text-red-600"
+                        >
+                          Logout
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </>
+              ) : (
+                // Navigate to auth when user is not logged in
+                <button 
+                  className="relative p-2"
+                  onClick={() => handleUserLogin()}
+                >
+                  <FaUser className="text-gray-700" />
+                </button>
+              )}
+            </div>
 
+<Link
+to={'/cart-page'}
+>
             <button className="relative p-2">
               <FaShoppingCart className="text-gray-700" />
               {cartItems > 0 && (
@@ -202,18 +239,10 @@ const handleUserLogin=()=>{
                   {cartItems}
                 </span>
               )}
-            </button>
+            </button></Link>
           </div>
         </div>
       </header>
-
-      {/* Navigation */}
-      <Navbar
-        categories={categories}
-        isCategoryActive={isCategoryActive}
-        activeDropdown={activeDropdown}
-        setActiveDropdown={setActiveDropdown}
-      />
 
 
     </div>

@@ -1,34 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { collection, products,categories } from '../assets/assets';
-// Sample initial product data for your wine store
-const initialProducts = products
-const itemCollection=collection
-// const itemCategories=categories
+
+const initialState = {
+  checkoutProduct: [],
+};
+
 const productsSlice = createSlice({
   name: 'products',
-  initialState: {
-    items: initialProducts,
-    collection:itemCollection,
-    categories,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
-    addProduct: (state, action) => {
-      state.items.push(action.payload); // Add a new product
+ setCheckoutProduct: (state, action) => {
+  state.checkoutProduct.push(action.payload);
+
+    },
+    clearCheckoutProduct: (state) => {
+      state.checkoutProduct = [];
+    },
+  updateQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const product = state.checkoutProduct.find(p => p.productSizeId === id);
+      if (product) {
+        product.quantity = quantity;
+      }
     },
     removeProduct: (state, action) => {
-      state.items = state.items.filter(product => product.id !== action.payload); // Remove product by id
-    },
-    updateProduct: (state, action) => {
-      const index = state.items.findIndex(product => product.id === action.payload.id);
-      if (index !== -1) {
-        state.items[index] = action.payload; // Update product by id
-      }
+      state.products = state.checkoutProduct.filter(p => p.id !== action.payload);
     },
   },
 });
 
 // Export actions and reducer
-export const { addProduct, removeProduct, updateProduct } = productsSlice.actions;
+export const { setCheckoutProduct, clearCheckoutProduct, updateQuantity,removeProduct } = productsSlice.actions;
 export default productsSlice.reducer;
