@@ -112,12 +112,15 @@ const [logoutMutation]=useLogoutMutation();
       {/* Navbar */}
       <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <Link
+          to={"/"}
+          >
           <div className="text-2xl font-bold flex items-center">
             <Wine className="text-[#a63f3f] mr-2" />
             <span className="text-[#2c2c2c]">Vino</span>
             <span className="text-[#a63f3f]">Selecto</span>
           </div>
-
+</Link>
           <div className="flex-1 flex items-center gap-2 w-full md:w-auto max-w-2xl">
             <div className="relative w-full">
               <input
@@ -168,10 +171,10 @@ const [logoutMutation]=useLogoutMutation();
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1 text-sm font-medium">
+            {/* <button className="flex items-center gap-1 text-sm font-medium">
               <FaMapMarkerAlt className="text-[#8b5a2b]" />
               <span>Locations</span>
-            </button>
+            </button> */}
 
             <button className="relative p-2">
               <FaHeart className="text-gray-700" />

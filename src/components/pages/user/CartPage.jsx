@@ -86,7 +86,7 @@ export default function EnhancedCartPage() {
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
       {/* Header */}
-      <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
+      {/* <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button 
             onClick={() => navigate(-1)}
@@ -102,10 +102,10 @@ export default function EnhancedCartPage() {
             <span className="text-[#a63f3f]">Selecto</span>
           </div>
           
-          <div className="w-20"></div> {/* Spacer for balance */}
+          <div className="w-20"></div> 
         </div>
-      </header>
-
+      </header> 
+*/}
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <motion.div
           className="flex items-center justify-center mb-8"
@@ -309,10 +309,10 @@ export default function EnhancedCartPage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/collections')}
+              onClick={() => navigate('/product-catalog')}
               className="px-8 py-3 bg-[#2c2c2c] text-white rounded-full font-medium transition-all hover:opacity-90"
             >
-              Explore Collections
+              Explore Products
             </motion.button>
           </motion.div>
         )}

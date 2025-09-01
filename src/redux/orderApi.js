@@ -11,7 +11,7 @@ export const orderApi = createApi({
 
   tagTypes: ["orderData"],
   endpoints: (builder) => ({
-    // ✅ Add Delivery Info
+    //  Add Delivery Info
     placeOrderDirectly: builder.mutation({
       query: ( orderData) => ({
         url: `/place-directly`,
@@ -21,23 +21,23 @@ export const orderApi = createApi({
       invalidatesTags: ["orderData"],
     }),
 
-    // ✅ Get Delivery Info
-    // getDeliveryInfo: builder.query({
-    //   query: (userId) => `/delivery/${userId}`,
-    //   providesTags: ["DeliveryInfo"],
-    // }),
+    // Get Order Info
+    getOrderInfo: builder.query({
+      query: (userId) => `/${userId}`,
+      providesTags: ["orderData"],
+    }),
 
-    // ✅ Update Delivery Info
-    // updateDeliveryInfo: builder.mutation({
-    //   query: ({ userId, deliveryData }) => ({
-    //     url: `/delivery/${userId}`,
-    //     method: "PUT",
-    //     body: deliveryData,
-    //   }),
-    //   invalidatesTags: ["DeliveryInfo"],
-    // }),
+    //  Update Order Info
+    updateOrderStatus: builder.mutation({
+      query: ({ userId, orderStatus }) => ({
+        url: `/delivery/${userId}?orderStatus=${orderStatus}`,
+        method: "PUT",
+       
+      }),
+      invalidatesTags: ["DeliveryInfo"],
+    }),
 
-    // ✅ Delete Delivery Info
+    //  Delete Delivery Info
     // deleteDeliveryInfo: builder.mutation({
     //   query: (userId) => ({
     //     url: `/delivery/${userId}`,
@@ -51,4 +51,6 @@ export const orderApi = createApi({
 // Auto-generated React hooks
 export const {
 usePlaceOrderDirectlyMutation,
+useGetOrderInfoQuery,
+useUpdateOrderStatusMutation
 } = orderApi;

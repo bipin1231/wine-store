@@ -5,7 +5,6 @@ import SimpleHeader from '../newComponent/SimpleHeader.jsx';
 function NormalLayout() {
   return (
     <>
-      <SimpleHeader />
 
 
       <Outlet />

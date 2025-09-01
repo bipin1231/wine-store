@@ -118,7 +118,7 @@ setIsButtonDisabled(false)
         </div>
 
         {/* Rating */}
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           {[...Array(5)].map((_, i) => (
             <FaStar 
               key={i} 
@@ -127,7 +127,7 @@ setIsButtonDisabled(false)
             />
           ))}
           <span className="text-sm text-gray-500 ml-2">(42)</span>
-        </div>
+        </div> */}
 
         {/* Size & Action */}
         <div className="flex justify-between items-center pt-2">

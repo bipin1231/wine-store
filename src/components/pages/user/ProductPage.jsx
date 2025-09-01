@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Star, Minus, Plus, ChevronLeft, ChevronRight, Heart, Share, Shield, Truck, RotateCw } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { 
+  Star, Minus, Plus, ChevronLeft, ChevronRight, Heart, Share, Shield, Truck, RotateCw, 
+  X, Link, Facebook, Twitter, Mail, MessageCircle, Linkedin, Copy, Check
+} from "lucide-react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@nextui-org/button";
@@ -26,7 +29,10 @@ export default function ProductPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const dispatch = useDispatch();
+  const shareModalRef = useRef(null);
 
   const [addToCart] = useAddToCartMutation();
   const userInfo = useSelector((state) => state.users.userInfo);
@@ -39,6 +45,23 @@ export default function ProductPage() {
 
     setSelectedSize(foundSize);
   }, [product]);
+
+  // Close share modal when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (shareModalRef.current && !shareModalRef.current.contains(event.target)) {
+        setShowShareModal(false);
+      }
+    }
+
+    if (showShareModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showShareModal]);
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -63,7 +86,6 @@ export default function ProductPage() {
       toast.error("Please Login Before Adding To Cart");
       return;
     }
-
 
     const cartProduct = {
       userId: userId,
@@ -90,7 +112,6 @@ export default function ProductPage() {
 
     console.log("selectde product info", selectedSize);
 
-
     try {
       dispatch(clearCheckoutProduct())
       dispatch(setCheckoutProduct({
@@ -98,16 +119,61 @@ export default function ProductPage() {
         productId: product.id,
         ...selectedSize,
         quantity: quantity,
-
       }))
 
-
-      //   await addToCart(cartProduct).unwrap();
-      // Redirect to checkout page
       navigate('/checkout');
     } catch (e) {
       console.log("Failed to add:", e);
     }
+  };
+
+  const handleShare = () => {
+    setShowShareModal(true);
+  };
+
+  const copyToClipboard = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        setLinkCopied(true);
+        toast.success("Link copied to clipboard!");
+        setTimeout(() => setLinkCopied(false), 2000);
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+        toast.error("Failed to copy link");
+      });
+  };
+
+  const shareOnSocialMedia = (platform) => {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(product.name);
+    const text = encodeURIComponent(`Check out ${product.name} on Vino Selecto!`);
+    
+    let shareUrl;
+    
+    switch(platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${text} ${url}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${title}&body=${text} ${url}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareUrl, '_blank');
+    setShowShareModal(false);
   };
 
   if (isLoading) return (
@@ -141,6 +207,108 @@ export default function ProductPage() {
   return (
     <main className="bg-[#f8f7f4] min-h-screen py-8">
       <div className="max-w-6xl mx-auto px-4">
+        {/* Share Modal */}
+        <AnimatePresence>
+          {showShareModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <motion.div
+                ref={shareModalRef}
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-serif font-light text-[#2c2c2c]">Share this product</h3>
+                  <button 
+                    onClick={() => setShowShareModal(false)}
+                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="h-5 w-5 text-gray-500" />
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-4 mb-6">
+                  <button
+                    onClick={() => shareOnSocialMedia('facebook')}
+                    className="flex flex-col items-center p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mb-2">
+                      <Facebook className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-600">Facebook</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => shareOnSocialMedia('twitter')}
+                    className="flex flex-col items-center p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center mb-2">
+                      <Twitter className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-600">Twitter</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => shareOnSocialMedia('whatsapp')}
+                    className="flex flex-col items-center p-3 bg-green-50 rounded-xl hover:bg-green-100 transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mb-2">
+                      <MessageCircle className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-600">WhatsApp</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => shareOnSocialMedia('linkedin')}
+                    className="flex flex-col items-center p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center mb-2">
+                      <Linkedin className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-600">LinkedIn</span>
+                  </button>
+                </div>
+                
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Or copy link</span>
+                    {linkCopied && (
+                      <span className="text-xs text-green-600 flex items-center">
+                        <Check className="h-3 w-3 mr-1" /> Copied!
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center bg-gray-100 rounded-lg p-3">
+                    <Link className="h-4 w-4 text-gray-500 mr-2" />
+                    <input
+                      type="text"
+                      value={window.location.href}
+                      readOnly
+                      className="flex-1 bg-transparent text-sm text-gray-600 truncate focus:outline-none"
+                    />
+                    <button
+                      onClick={copyToClipboard}
+                      className="ml-2 p-1 hover:bg-gray-200 rounded transition-colors"
+                    >
+                      <Copy className="h-4 w-4 text-gray-500" />
+                    </button>
+                  </div>
+                </div>
+                
+                <button
+                  onClick={() => shareOnSocialMedia('email')}
+                  className="w-full flex items-center justify-center py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Share via Email
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
           <div className="grid gap-8 md:grid-cols-2 p-6 md:p-8">
             {/* Images */}
@@ -196,6 +364,7 @@ export default function ProductPage() {
                       </motion.button>
                       <motion.button
                         className="bg-white p-2.5 rounded-full shadow-md hover:bg-gray-50 transition-colors"
+                        onClick={handleShare}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -239,14 +408,14 @@ export default function ProductPage() {
               </div>
 
               {/* Ratings */}
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="h-5 w-5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-gray-600">(128 reviews)</span>
-              </div>
+              </div> */}
 
               {/* Price & Stock */}
               {selectedSize && (
@@ -371,7 +540,7 @@ export default function ProductPage() {
 
         {/* Reviews Section */}
         <div className="mt-12 bg-white rounded-3xl shadow-sm p-8">
-          <h2 className="text-2xl font-bold text-[#2c2c2c] mb-6">Customer Reviews</h2>
+          {/* <h2 className="text-2xl font-bold text-[#2c2c2c] mb-6">Customer Reviews</h2>
 
           <div className="flex items-center mb-8">
             <div className="flex items-center mr-4">
@@ -383,13 +552,13 @@ export default function ProductPage() {
               </div>
             </div>
             <div className="text-gray-600">Based on 128 reviews</div>
-          </div>
+          </div> */}
 
           <div className="grid gap-6 md:grid-cols-2">
             {/* Review items would go here */}
-            <div className="text-center py-12 text-gray-500 col-span-2">
+            {/* <div className="text-center py-12 text-gray-500 col-span-2">
               <p>No reviews yet. Be the first to review this product!</p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
