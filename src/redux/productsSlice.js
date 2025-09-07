@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   checkoutProduct: [],
+  orderId:null,
 };
 
 const productsSlice = createSlice({
@@ -10,6 +11,14 @@ const productsSlice = createSlice({
   reducers: {
  setCheckoutProduct: (state, action) => {
   state.checkoutProduct.push(action.payload);
+
+    },
+ setOrderId: (state, action) => {
+  state.orderId=action.payload
+
+    },
+ clearOrderId: (state, action) => {
+  state.orderId=null
 
     },
     clearCheckoutProduct: (state) => {
@@ -29,5 +38,5 @@ const productsSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { setCheckoutProduct, clearCheckoutProduct, updateQuantity,removeProduct } = productsSlice.actions;
+export const { setCheckoutProduct, clearCheckoutProduct, updateQuantity,removeProduct,setOrderId,clearOrderId } = productsSlice.actions;
 export default productsSlice.reducer;

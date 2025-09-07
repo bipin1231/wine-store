@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Wine,
@@ -14,19 +14,27 @@ import {
   Lock
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePlaceOrderDirectlyMutation } from "../../redux/orderApi";
+import { usePlaceOrderDirectlyMutation, useUpdatePaymentStatusMutation } from "../../redux/orderApi";
 import { toast } from "react-toastify";
+import { useInitEsewaMutation } from "../../redux/paymentApi";
+import { FaTrashRestoreAlt } from "react-icons/fa";
 
 const PaymentPage = () => {
   const { checkoutProduct } = useSelector((state) => state.products);
   const [selectedPayment, setSelectedPayment] = useState("cod");
   const [orderComplete, setOrderComplete] = useState(false);
+  const [initEsewaMutation] = useInitEsewaMutation()
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.users.userInfo);
   const userId = userInfo?.id;
+  const orderId = useSelector((state) => state.products.orderId);
+console.log(orderId);
 
-  const [placeOrderDirectlyMutation]=usePlaceOrderDirectlyMutation()
+
+
+  const [placeOrderDirectlyMutation] = usePlaceOrderDirectlyMutation()
+  const [updatePaymentStatusMutation] = useUpdatePaymentStatusMutation()
   // calculate subtotal
   const subtotal = checkoutProduct.reduce(
     (total, p) => total + p.quantity * p.sellingPrice,
@@ -38,35 +46,61 @@ const PaymentPage = () => {
 
   const total = subtotal + deliveryCharge;
 
-  const handlePayment =async () => {
-    console.log(checkoutProduct);
-    
-    if(checkoutProduct.length==1){
-    const payload={
-      userId:userId,
-      productId:checkoutProduct[0].productId,
-      productVariantId:checkoutProduct[0].productSizeId,
-      quantity:checkoutProduct[0].quantity,
-      deliveryCharges:100,
-      paymentType:selectedPayment,
+  const handlePayment = async () => {
 
+
+    if (selectedPayment == "cod") {
+      if (checkoutProduct.length == 1) {
+
+
+        try {
+          const result = await updatePaymentStatusMutation({orderId,paymentType:selectedPayment,paymentStatus:"unpaid"}).unwrap();
+          console.log(res);
+          
+          toast.success("Order Placed Successfully");
+          setOrderComplete(true);
+        } catch (err) {
+          console.error("Order failed:", err);
+          toast.error("Order failed: " + err?.data?.message || "Something went wrong");
+        }
+
+      }
     }
-    console.log("data to send",payload);
-    
-try {
-  const result = await placeOrderDirectlyMutation(payload).unwrap();
-    toast.success("Order Placed Successfully");
-    setOrderComplete(true);
-} catch (err) {
-  console.error("Order failed:", err);
-  toast.error("Order failed: " + err?.data?.message || "Something went wrong");
-}
 
-    } 
-    
+    if (selectedPayment == "esewa") {
+      try {
+        const payload = await initEsewaMutation({ orderId:orderId, amount: total }).unwrap();
+        console.log(payload);
 
 
-  
+        // Create & submit a form dynamically
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = payload.esewaUrl;
+
+        Object.entries(payload).forEach(([key, val]) => {
+          if (key !== "esewaUrl") {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = val;
+            form.appendChild(input);
+          }
+        });
+
+
+        document.body.appendChild(form);
+        form.submit();
+      } catch (err) {
+        console.error("Payment init failed", err);
+      }
+    }
+
+
+
+
+
+
   };
 
   if (orderComplete) {
@@ -116,7 +150,7 @@ try {
 
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
-    
+
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         <motion.div
@@ -267,15 +301,15 @@ try {
                */}
               <div
                 className={`p-5 cursor-pointer transition-all ${selectedPayment === "cod"
-                    ? "bg-[#f8f7f4] rounded-lg"
-                    : "hover:bg-gray-50"
+                  ? "bg-[#f8f7f4] rounded-lg"
+                  : "hover:bg-gray-50"
                   }`}
                 onClick={() => setSelectedPayment("cod")}
               >
                 <div className="flex items-center">
                   <div className={`h-5 w-5 rounded-full border mr-3 flex items-center justify-center ${selectedPayment === "cod"
-                      ? "border-[#8b5a2b] bg-[#8b5a2b]"
-                      : "border-gray-300"
+                    ? "border-[#8b5a2b] bg-[#8b5a2b]"
+                    : "border-gray-300"
                     }`}>
                     {selectedPayment === "cod" && (
                       <div className="h-2 w-2 rounded-full bg-white"></div>
@@ -286,30 +320,30 @@ try {
                 </div>
               </div>
 
-              {/*   Payment GateWay section and it is okay.  */}
+              {/* Payment GateWay section and it is okay.  */}
 
-              {/* <div
-                className={`p-5 cursor-pointer transition-all ${selectedPayment === "ewallet"
-                    ? "bg-[#f8f7f4] rounded-lg"
-                    : "hover:bg-gray-50"
+              <div
+                className={`p-5 cursor-pointer transition-all ${selectedPayment === "esewa"
+                  ? "bg-[#f8f7f4] rounded-lg"
+                  : "hover:bg-gray-50"
                   }`}
-                onClick={() => setSelectedPayment("ewallet")}
+                onClick={() => setSelectedPayment("esewa")}
               >
                 <div className="flex items-center">
-                  <div className={`h-5 w-5 rounded-full border mr-3 flex items-center justify-center ${selectedPayment === "ewallet"
-                      ? "border-[#8b5a2b] bg-[#8b5a2b]"
-                      : "border-gray-300"
+                  <div className={`h-5 w-5 rounded-full border mr-3 flex items-center justify-center ${selectedPayment === "esewa"
+                    ? "border-[#8b5a2b] bg-[#8b5a2b]"
+                    : "border-gray-300"
                     }`}>
-                    {selectedPayment === "ewallet" && (
+                    {selectedPayment === "esewa" && (
                       <div className="h-2 w-2 rounded-full bg-white"></div>
                     )}
                   </div>
                   <Smartphone className="h-5 w-5 mr-2 text-[#8b5a2b]" />
-                  <span className="font-medium text-[#2c2c2c]">Khalti / eSewa</span>
+                  <span className="font-medium text-[#2c2c2c]">eSewa</span>
                 </div>
 
                 <AnimatePresence>
-                  {selectedPayment === "ewallet" && (
+                  {selectedPayment === "esewa" && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -322,7 +356,7 @@ try {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div> */}
+              </div>
             </div>
 
             <div className="flex items-center text-sm text-gray-500 mb-6">

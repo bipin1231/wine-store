@@ -23,11 +23,14 @@ import { toast } from "react-toastify";
 import {  useDispatch,useSelector } from "react-redux";
 import ProductCard from "./checkout/ProductCard";
 import OrderSummary from "./checkout/OrderSummary";
-import { updateQuantity } from "../../redux/productsSlice";
+import { setOrderId, updateQuantity } from "../../redux/productsSlice";
+import { usePlaceOrderDirectlyMutation } from "../../redux/orderApi";
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const location = useLocation();
+    const [placeOrderDirectlyMutation]=usePlaceOrderDirectlyMutation()
+   const { checkoutProduct } = useSelector((state) => state.products);
   // const product = location.state?.product || {
   //   id: 1,
   //   name: "Premium Reserve Cabernet Sauvignon",
@@ -98,86 +101,89 @@ const subtotal = products.reduce(
   };
 
   const handleCheckout = async() => {
-console.log(total);
+
+    const payload={
+      userId:userId,
+      productId:checkoutProduct[0].productId,
+      productVariantId:checkoutProduct[0].productSizeId,
+      quantity:checkoutProduct[0].quantity,
+      deliveryCharges:100,
 
 
-    if (deliveryInfo?.data.id) {
+    }
+
+    
+
+    if (!deliveryInfo?.data.id) {
+    toast.error("Please Add Delivery Info before proceeding")
+    return;
+    }
+    
+      try {
+  const result = await placeOrderDirectlyMutation(payload).unwrap();
+  console.log("response",result?.data.id);
+  dispatch(setOrderId(result?.data.id))
+  
+    toast.success("Order Placed Successfully");
       navigate('payment')
+    // setOrderComplete(true);
+} catch (err) {
+  console.error("Order failed:", err);
+  toast.error("Order failed: " + err?.data?.message || "Something went wrong");
+}
+    
     }
-    else{
-      toast.error("Please Add Delivery Info before proceeding")
-    }
 
-  };
 
-  if (orderComplete) {
-    return (
-      <div className="min-h-screen bg-[#f8f7f4]">
-        <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="text-2xl font-bold flex items-center">
-              <Wine className="text-[#a63f3f] mr-2" />
-              <span className="text-[#2c2c2c]">Vino</span>
-              <span className="text-[#a63f3f]">Selecto</span>
-            </div>
-          </div>
-        </header>
 
-        <main className="max-w-4xl mx-auto px-4 py-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-8 text-center shadow-sm"
-          >
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="h-10 w-10 text-green-600" />
-            </div>
-            <h1 className="text-3xl font-serif font-light text-[#2c2c2c] mb-4">
-              Order Confirmed
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Thank you for your purchase. Your order has been confirmed and will be shipped soon.
-            </p>
-            <p className="text-sm text-gray-500 mb-8">
-              Order #: VS-{Math.floor(100000 + Math.random() * 900000)}
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/')}
-              className="px-8 py-3 bg-[#2c2c2c] text-white rounded-full font-medium transition-all hover:opacity-90"
-            >
-              Continue Shopping
-            </motion.button>
-          </motion.div>
-        </main>
-      </div>
-    );
-  }
+  // if (orderComplete) {
+  //   return (
+  //     <div className="min-h-screen bg-[#f8f7f4]">
+  //       <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
+  //         <div className="max-w-7xl mx-auto flex items-center justify-between">
+  //           <div className="text-2xl font-bold flex items-center">
+  //             <Wine className="text-[#a63f3f] mr-2" />
+  //             <span className="text-[#2c2c2c]">Vino</span>
+  //             <span className="text-[#a63f3f]">Selecto</span>
+  //           </div>
+  //         </div>
+  //       </header>
+
+  //       <main className="max-w-4xl mx-auto px-4 py-12">
+  //         <motion.div
+  //           initial={{ opacity: 0, y: 20 }}
+  //           animate={{ opacity: 1, y: 0 }}
+  //           className="bg-white rounded-2xl p-8 text-center shadow-sm"
+  //         >
+  //           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+  //             <Check className="h-10 w-10 text-green-600" />
+  //           </div>
+  //           <h1 className="text-3xl font-serif font-light text-[#2c2c2c] mb-4">
+  //             Order Confirmed
+  //           </h1>
+  //           <p className="text-gray-600 mb-6">
+  //             Thank you for your purchase. Your order has been confirmed and will be shipped soon.
+  //           </p>
+  //           <p className="text-sm text-gray-500 mb-8">
+  //             Order #: VS-{Math.floor(100000 + Math.random() * 900000)}
+  //           </p>
+  //           <motion.button
+  //             whileHover={{ scale: 1.02 }}
+  //             whileTap={{ scale: 0.98 }}
+  //             onClick={() => navigate('/')}
+  //             className="px-8 py-3 bg-[#2c2c2c] text-white rounded-full font-medium transition-all hover:opacity-90"
+  //           >
+  //             Continue Shopping
+  //           </motion.button>
+  //         </motion.div>
+  //       </main>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
-      <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center text-sm font-medium text-[#8b5a2b] hover:text-[#a63f3f] transition-colors group"
-          >
-            <ArrowLeft size={18} className="mr-1 group-hover:-translate-x-1 transition-transform" />
-            Back
-          </button>
-
-          <div className="text-2xl font-bold flex items-center">
-            <Wine className="text-[#a63f3f] mr-2" />
-            <span className="text-[#2c2c2c]">Vino</span>
-            <span className="text-[#a63f3f]">Selecto</span>
-          </div>
-
-          <div className="flex items-center text-sm text-gray-500">
-            Secure Checkout
-          </div>
-        </div>
-      </header>
+  
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-serif font-light text-[#2c2c2c] mb-8 text-center">

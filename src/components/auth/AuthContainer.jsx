@@ -71,6 +71,11 @@ export default function AuthPage() {
     }
   };
 
+  const handleGoogleLogin=async()=>{
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+
+  }
+
   const baseBg = "bg-[#f8f7f4]";
   const baseText = "text-[#2c2c2c]";
 
@@ -215,15 +220,16 @@ export default function AuthPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="p-3 rounded-full border border-gray-200 hover:border-[#a63f3f] hover:text-[#a63f3f] transition"
+              onClick={()=>handleGoogleLogin()}
             >
               <FaGoogle />
             </motion.button>
-            <motion.button
+            {/* <motion.button
               whileHover={{ scale: 1.05 }}
               className="p-3 rounded-full border border-gray-200 hover:border-[#8b5a2b] hover:text-[#8b5a2b] transition"
             >
               <FaFacebook />
-            </motion.button>
+            </motion.button> */}
           </div>
         </div>
 

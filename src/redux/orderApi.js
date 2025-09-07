@@ -29,12 +29,21 @@ export const orderApi = createApi({
 
     //  Update Order Info
     updateOrderStatus: builder.mutation({
-      query: ({ userId, orderStatus }) => ({
-        url: `/delivery/${userId}?orderStatus=${orderStatus}`,
+      query: ({ orderId, orderStatus }) => ({
+        url: `/${orderId}?orderStatus=${orderStatus}`,
         method: "PUT",
        
       }),
-      invalidatesTags: ["DeliveryInfo"],
+      invalidatesTags: ["orderData"],
+    }),
+
+    updatePaymentStatus: builder.mutation({
+      query: ({ orderId,paymentType, paymentStatus }) => ({
+        url: `/payment/${orderId}`,
+        method: "PUT",
+        params: { paymentType, paymentStatus }      
+      }),
+      invalidatesTags: ["orderData"],
     }),
 
     //  Delete Delivery Info
@@ -52,5 +61,7 @@ export const orderApi = createApi({
 export const {
 usePlaceOrderDirectlyMutation,
 useGetOrderInfoQuery,
-useUpdateOrderStatusMutation
+useUpdateOrderStatusMutation,
+useUpdatePaymentStatusMutation,
+
 } = orderApi;

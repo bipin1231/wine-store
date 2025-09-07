@@ -1,5 +1,5 @@
 import {createApi,fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import { baseQueryWithAuth } from './baseQuery';
+import { baseQueryWithAuth } from './baseQueryWithAuth';
 
 export const cartApi=createApi({
   reducerPath:"cartApi",

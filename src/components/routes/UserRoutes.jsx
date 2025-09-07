@@ -16,6 +16,7 @@ import CheckoutPage from '../newComponent/CheckoutPage.jsx';
 import PaymentPage from '../newComponent/PaymentPage.jsx';
 import UserProfilePage from '../newComponent/UserProfile.jsx';
 import NormalLayout from '../layout/NormalLayout.jsx';
+import PaymentLayout from '../layout/PaymentLayout.jsx';
 export default function UserRoutes() {
   return (
     <Routes>
@@ -26,8 +27,7 @@ export default function UserRoutes() {
         <Route path='product-catalog/:search' element={<ProductCatalog />} />
         <Route path='product-catalog' element={<ProductCatalog />} />
         <Route path='collection-page' element={<CollectionPage />} />
-        <Route path='checkout' element={<CheckoutPage />} />
-        <Route path='checkout/payment' element={<PaymentPage />} />
+
 
         <Route path='product-page/:productId' element={<ProductPage />} />
 
@@ -39,6 +39,11 @@ export default function UserRoutes() {
       {/* Auth Layout */}
       <Route element={<AuthLayout />}>
         <Route path="auth" element={<AuthContainer />} />
+
+      </Route>
+      <Route element={<PaymentLayout />}>
+        <Route path='checkout' element={<CheckoutPage />} />
+        <Route path='checkout/payment' element={<PaymentPage />} />
 
       </Route>
       <Route element={<CartLayout />}>

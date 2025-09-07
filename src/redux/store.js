@@ -14,6 +14,7 @@ import { cartApi } from './cartApi';
 import { sizeApi } from './sizeApi';
 import { deliveryApi } from './deliveryApi';
 import {orderApi} from './orderApi'
+import { paymentApi } from './paymentApi';
 import { loadState, saveState } from '../session/sessionStorage';
 
 
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   [sizeApi.reducerPath]: sizeApi.reducer,
   [deliveryApi.reducerPath]: deliveryApi.reducer,
   [orderApi.reducerPath]: orderApi.reducer,
+  [paymentApi.reducerPath]: paymentApi.reducer,
 
 
 
@@ -64,6 +66,7 @@ const store = configureStore({
       sizeApi.middleware,
       deliveryApi.middleware,
       orderApi.middleware,
+      paymentApi.middleware,
 
     ),
       // hydrate checkout session state here
