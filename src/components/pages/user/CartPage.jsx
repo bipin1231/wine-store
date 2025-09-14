@@ -11,23 +11,28 @@ import {
   User,
   LogIn
 } from "lucide-react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import {
   useGetCartQuery,
   useDeleteCartItemMutation,
   useUpdateCartItemMutation,
 } from "../../../redux/cartApi";
+import { usePlaceCartOrderMutation } from "../../../redux/orderApi";
 import { useNavigate } from "react-router-dom";
+import { setCheckoutProduct,clearCheckoutProduct } from "../../../redux/productsSlice";
 
 export default function EnhancedCartPage() {
   const [subtotal, setSubtotal] = useState(0);
   const [tax, setTax] = useState(0);
+  const [deliveryCharge,setDeliveryCharge]=useState(100);
   const [total, setTotal] = useState(0);
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.users.userInfo);
   
   const userId = userInfo?.id;
+
+  const [placeCartOrderMutation]=usePlaceCartOrderMutation();
 
   
 
@@ -41,28 +46,31 @@ export default function EnhancedCartPage() {
     skip: !userId,
   });
 
-  console.log("cartitems",cartItems);
+  console.log("cartitems",cartItems.data);
   
   const [deleteCartItem] = useDeleteCartItemMutation();
   const [updateCartItem] = useUpdateCartItemMutation();
 
   useEffect(() => {
-    if (Array.isArray(cartItems)) {
-      const newSubtotal = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+    if (cartItems?.data) {
+      const newSubtotal = cartItems.data.reduce(
+        (sum, item) => sum + item.totalPrice,
         0
       );
-      const newTax = newSubtotal * 0.1;
-      const newTotal = newSubtotal + newTax;
 
-      setSubtotal(newSubtotal);
-      setTax(newTax);
-      setTotal(newTotal);
+
+  const newDeliveryCharge = newSubtotal > 1000 ? 0 : 100;
+  const newTotal = newSubtotal + newDeliveryCharge;
+
+  setSubtotal(newSubtotal);
+  setDeliveryCharge(newDeliveryCharge);
+  setTotal(newTotal);
+
     }
   }, [cartItems]);
 
   const updateQuantity = async (id, newQuantity) => {
-    if (newQuantity >= 0) {
+    if (newQuantity > 0) {
       try {
         await updateCartItem({ cartItemId: id, quantity: newQuantity }).unwrap();
         console.log("Cart updated");
@@ -75,13 +83,22 @@ export default function EnhancedCartPage() {
 
   const removeItem = async (id) => {
     try {
-      await deleteCartItem(id).unwrap();
+      const res=await deleteCartItem(id).unwrap();
+      console.log(res);
+      
       console.log("Cart item deleted successfully");
       refetch();
     } catch (e) {
       console.error("Failed to delete product from cart", e);
     }
   };
+  const handleProceedToCheckOut=()=>{
+          dispatch(clearCheckoutProduct())
+          dispatch(setCheckoutProduct(cartItems.data))
+           navigate('/cart-checkout');
+    
+    
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f7f4]">
@@ -157,7 +174,7 @@ export default function EnhancedCartPage() {
               </button>
             </p>
           </motion.div>
-        ) : Array.isArray(cartItems) && cartItems.length > 0 ? (
+        ) : Array.isArray(cartItems?.data) && cartItems?.data.length > 0 ? (
           // User logged in with items in cart
           <div className="grid gap-8 lg:grid-cols-3">
             <motion.div
@@ -167,7 +184,7 @@ export default function EnhancedCartPage() {
               transition={{ duration: 0.5 }}
             >
               <AnimatePresence>
-                {cartItems.map((item) => (
+                {cartItems?.data.map((item) => (
                   <motion.div
                     key={item.cartItemId}
                     className="flex items-center bg-white rounded-2xl p-4 shadow-sm overflow-hidden"
@@ -179,18 +196,18 @@ export default function EnhancedCartPage() {
                   >
                     <div className="relative w-20 h-20 md:w-24 md:h-24 overflow-hidden rounded-xl">
                       <img
-                        src={`http://localhost:8080/images/${item.url}`}
-                        alt={item.productName}
+                        src={item.imageUrl}
+                        alt={item.name}
                         className="object-cover w-full h-full"
                       />
                     </div>
                     <div className="flex-1 ml-4 md:ml-6">
                       <div className="flex justify-between">
                         <div>
-                          <h3 className="font-medium text-[#2c2c2c]">{item.productName}</h3>
+                          <h3 className="font-medium text-[#2c2c2c]">{item.name}</h3>
                           <p className="text-sm text-[#8b5a2b] mt-1">{item.size}</p>
                           <p className="text-lg font-medium text-[#2c2c2c] mt-2">
-                            ${(item.totalPrice).toFixed(2)}
+                            Rs.{(item.sellingPrice).toFixed(2)}
                           </p>
                         </div>
                         <button
@@ -221,7 +238,7 @@ export default function EnhancedCartPage() {
                           </button>
                         </div>
                         <p className="text-lg font-medium text-[#2c2c2c]">
-                          ${(item.price * item.quantity).toFixed(2)}
+                         Rs. {item.totalPrice.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -243,30 +260,31 @@ export default function EnhancedCartPage() {
                 
                 <div className="flex justify-between py-2">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+                  <span className="font-medium">Rs.{subtotal.toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600">Tax</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span className="text-gray-600">Delivery Charge</span>
+                  <span className="font-medium">Rs.{deliveryCharge.toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between py-4 border-t border-gray-100">
                   <span className="text-lg font-medium text-[#2c2c2c]">Total</span>
-                  <span className="text-lg font-medium text-[#2c2c2c]">${total.toFixed(2)}</span>
+                  <span className="text-lg font-medium text-[#2c2c2c]">Rs.{total.toFixed(2)}</span>
                 </div>
                 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full py-3 bg-[#2c2c2c] text-white rounded-full font-medium transition-all hover:opacity-90 flex items-center justify-center"
-                >
+               onClick={()=>handleProceedToCheckOut()}
+               >
                   Proceed to Checkout
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </motion.button>
                 
                 <p className="text-sm text-center text-gray-500 mt-4">
-                  Free shipping on orders over $500
+                  Free shipping on orders over Rs.1000
                 </p>
                 
                 <div className="mt-6 p-4 bg-[#f8f7f4] rounded-xl">

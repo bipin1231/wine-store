@@ -1,5 +1,5 @@
 "use client";
-import React, { useState ,useEffect} from "react";
+import React, { useState,useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -19,68 +19,68 @@ import { toast } from "react-toastify";
 import { useInitEsewaMutation } from "../../redux/paymentApi";
 import { FaTrashRestoreAlt } from "react-icons/fa";
 
-const PaymentPage = () => {
+const CartPaymentPage = () => {
   const { checkoutProduct } = useSelector((state) => state.products);
   const [selectedPayment, setSelectedPayment] = useState("cod");
   const [orderComplete, setOrderComplete] = useState(false);
-  const [deliveryCharge, setDeliveryCharge] = useState(100);
-  const [subtotal, setSubtotal] = useState(0);
-  const [total, setTotal] = useState(0);
+     const [deliveryCharge,setDeliveryCharge]=useState(100);
+       const [subtotal,setSubtotal]=useState(0);
+            const [total,setTotal]=useState(0);
   const [initEsewaMutation] = useInitEsewaMutation()
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.users.userInfo);
   const userId = userInfo?.id;
   const orderId = useSelector((state) => state.products.orderId);
-  console.log(orderId);
+console.log(orderId);
   const orderNumber = useSelector((state) => state.products.orderNumber);
-  console.log(orderNumber);
+console.log(orderNumber);
 
 
 
 
   const [placeOrderDirectlyMutation] = usePlaceOrderDirectlyMutation()
   const [updatePaymentStatusMutation] = useUpdatePaymentStatusMutation()
-
-
-
   //calculations
-    useEffect(() => {
-    const newSubtotal = checkoutProduct.quantity * checkoutProduct.sellingPrice;
-    const newDeliveryCharge = newSubtotal > 1000 ? 0 : 100;
-    const newTotal = newSubtotal + newDeliveryCharge;
-  
-    setSubtotal(newSubtotal);
-    setDeliveryCharge(newDeliveryCharge);
-    setTotal(newTotal);
-  
-    }, [checkoutProduct]);
 
-
+      useEffect(() => {
+           const newSubtotal = checkoutProduct.reduce(
+          (sum, item) => sum + item.totalPrice,
+          0
+        );
+      const newDeliveryCharge = newSubtotal > 1000 ? 0 : 100;
+      const newTotal = newSubtotal + newDeliveryCharge;
+    
+      setSubtotal(newSubtotal);
+      setDeliveryCharge(newDeliveryCharge);
+      setTotal(newTotal);
+    
+      }, [checkoutProduct]);
+ 
   const handlePayment = async () => {
 
 
     if (selectedPayment == "cod") {
+    
 
 
+        try {
+          const result = await updatePaymentStatusMutation({orderId,paymentType:selectedPayment,paymentStatus:"unpaid"}).unwrap();
+          console.log(result);
+          
+          toast.success("Order Placed Successfully");
+          setOrderComplete(true);
+        } catch (err) {
+          console.error("Order failed:", err);
+          toast.error("Order failed: " + err?.data?.message || "Something went wrong");
+        }
 
-      try {
-        const result = await updatePaymentStatusMutation({ orderId, paymentType: selectedPayment, paymentStatus: "unpaid" }).unwrap();
-        console.log(result);
-
-        toast.success("Order Placed Successfully");
-        setOrderComplete(true);
-      } catch (err) {
-        console.error("Order failed:", err);
-        toast.error("Order failed: " + err?.data?.message || "Something went wrong");
-      }
-
-
+      
     }
 
     if (selectedPayment == "esewa") {
       try {
-        const payload = await initEsewaMutation({ orderNumber: orderNumber, amount: total }).unwrap();
+        const payload = await initEsewaMutation({ orderNumber:orderNumber, amount: total }).unwrap();
         console.log(payload);
 
 
@@ -117,7 +117,15 @@ const PaymentPage = () => {
   if (orderComplete) {
     return (
       <div className="min-h-screen bg-[#f8f7f4]">
-
+        <header className="sticky top-0 z-50 py-4 px-6 bg-white">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="text-2xl font-bold flex items-center">
+              <Wine className="text-[#a63f3f] mr-2" />
+              <span className="text-[#2c2c2c]">Vino</span>
+              <span className="text-[#a63f3f]">Selecto</span>
+            </div>
+          </div>
+        </header>
 
         <main className="max-w-4xl mx-auto px-4 py-12">
           <motion.div
@@ -135,7 +143,7 @@ const PaymentPage = () => {
               Thank you for your order. Your payment has been processed successfully.
             </p>
             <p className="text-sm text-gray-500 mb-8">
-              Order #{orderNumber}
+              Order #: VS-{Math.floor(100000 + Math.random() * 900000)}
             </p>
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -179,34 +187,34 @@ const PaymentPage = () => {
             </h2>
 
             <div className="space-y-6 mb-6">
-
-              <div
-                key={checkoutProduct.productSizeId}
-                className="flex items-center justify-between pb-6 border-b border-gray-100"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 overflow-hidden rounded-lg">
-                    <img
-                      src={checkoutProduct.imageUrl[0]}
-                      alt={checkoutProduct.name}
-                      className="w-full h-full object-cover"
-                    />
+              {checkoutProduct.map((p) => (
+                <div
+                  key={p.productSizeId}
+                  className="flex items-center justify-between pb-6 border-b border-gray-100"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 overflow-hidden rounded-lg">
+                      <img
+                        src={p.imageUrl[0]}
+                        alt={p.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-[#2c2c2c]">
+                        {p.name}
+                      </h3>
+                      <p className="text-sm text-[#8b5a2b] mt-1">{p.size}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Qty: {p.quantity} × Rs. {p.sellingPrice}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-[#2c2c2c]">
-                      {checkoutProduct.name}
-                    </h3>
-                    <p className="text-sm text-[#8b5a2b] mt-1">{checkoutProduct.size}</p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Qty: {checkoutProduct.quantity} × Rs. {checkoutProduct.sellingPrice}
-                    </p>
-                  </div>
+                  <p className="font-medium text-[#2c2c2c]">
+                    Rs. {p.quantity * p.sellingPrice}
+                  </p>
                 </div>
-                <p className="font-medium text-[#2c2c2c]">
-                  Rs. {checkoutProduct.quantity * checkoutProduct.sellingPrice}
-                </p>
-              </div>
-
+              ))}
             </div>
 
             {/* Price Details */}
@@ -386,4 +394,4 @@ const PaymentPage = () => {
   );
 };
 
-export default PaymentPage;
+export default CartPaymentPage;

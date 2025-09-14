@@ -17,6 +17,8 @@ import PaymentPage from '../newComponent/PaymentPage.jsx';
 import UserProfilePage from '../newComponent/UserProfile.jsx';
 import NormalLayout from '../layout/NormalLayout.jsx';
 import PaymentLayout from '../layout/PaymentLayout.jsx';
+import CartCheckoutPage from '../newComponent/CartCheckoutPage.jsx';
+import CartPaymentPage from '../newComponent/CartPaymentPage.jsx';
 export default function UserRoutes() {
   return (
     <Routes>
@@ -43,7 +45,10 @@ export default function UserRoutes() {
       </Route>
       <Route element={<PaymentLayout />}>
         <Route path='checkout' element={<CheckoutPage />} />
+         <Route path='cart-checkout' element={<CartCheckoutPage />} />
+       
         <Route path='checkout/payment' element={<PaymentPage />} />
+           <Route path='cart-checkout/payment' element={<  CartPaymentPage />} />
 
       </Route>
       <Route element={<CartLayout />}>

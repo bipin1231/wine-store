@@ -13,8 +13,8 @@ const SignupForm = ({ onSubmit,showPassword,setShowPassword}) => {
 
   } = useForm({
     defaultValues: {
-      // firstName: "",
-      // lastName: "",
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -36,7 +36,7 @@ const SignupForm = ({ onSubmit,showPassword,setShowPassword}) => {
     <>
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
              
-                  {/* <motion.div
+                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-hidden"
@@ -69,7 +69,7 @@ const SignupForm = ({ onSubmit,showPassword,setShowPassword}) => {
                         {errors.lastName && <p className="text-red-500 text-xs mt-1">Last name required</p>}
                       </div>
                     </div>
-                  </motion.div> */}
+                  </motion.div>
 
                 {/* Email */}
                 <div>

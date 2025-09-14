@@ -7,19 +7,27 @@ export const sizeApi = createApi({
     getSize: builder.query({
       query: () => 'size',
     }),
-      addSize:builder.mutation({
-      query: newSize=>({
-        url:'/size',
-        method:'POST',
-        body:newSize,
-      })
-    }),
-
+    addSize:builder.mutation({
+    query: newSize=>({
+      url:'/size',
+      method:'POST',
+      body:newSize,
+    })
+  }),
+     updateSize:builder.mutation({
+    query: newSize=>({
+      url:'/size',
+      method:'PUT',
+      body:newSize,
+    })
+  }),
+    
   })
 
 })
 
 export const { useGetSizeQuery,
-  useAddSizeMutation
+  useAddSizeMutation,
+  useUpdateSizeMutation
 
 } = sizeApi;

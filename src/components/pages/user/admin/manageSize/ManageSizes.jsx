@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useGetSizeQuery, useAddSizeMutation } from "../../../../../redux/sizeApi";
+import { useGetSizeQuery, useAddSizeMutation,useUpdateSizeMutation } from "../../../../../redux/sizeApi";
 
 function SizeManagementPage() {
   // fetch from API
   const { data: sizesData = [], isLoading } = useGetSizeQuery();
   const [addSize] = useAddSizeMutation();
+  const [updateSizeMutation]=useUpdateSizeMutation();
 
   const [sizes, setSizes] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -38,16 +39,27 @@ function SizeManagementPage() {
   };
 
   // Save all edited changes
-  const handleSaveAll = () => {
+  const handleSaveAll = async() => {
     const updated = sizes.map((sz) =>
       modifiedSizes[sz.id] ? { ...sz, ...modifiedSizes[sz.id] } : sz
     );
 
     console.log("Final saved:", updated);
-    setSizes(updated);
-    setModifiedSizes({});
-    setIsEditing(false);
-    // TODO: call updateSizeMutation here if API available
+    try {
+      const res=await updateSizeMutation(updated).unwrap();
+      console.log(res);
+      
+          setSizes(updated);
+          setModifiedSizes({});
+              setIsEditing(false);
+    } catch (error) {
+      console.log(error);
+      
+      
+    }finally{
+
+    }
+
   };
 
   // Delete a size (local only for now)

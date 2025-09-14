@@ -3,20 +3,30 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
-  baseQuery: fetchBaseQuery({ 
+  baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:8080/order",
-       credentials: 'include', 
+    credentials: 'include',
   }),
 
 
   tagTypes: ["orderData"],
   endpoints: (builder) => ({
-    //  Add Delivery Info
+    //  Place direct order
     placeOrderDirectly: builder.mutation({
-      query: ( orderData) => ({
+      query: (orderData) => ({
         url: `/place-directly`,
         method: "POST",
         body: orderData,
+      }),
+      invalidatesTags: ["orderData"],
+    }),
+
+    placeCartOrder: builder.mutation({
+      query: (userId) => ({
+        url: "/place-cart-order",
+        method: "POST",
+         params: { userId }
+    
       }),
       invalidatesTags: ["orderData"],
     }),
@@ -32,16 +42,16 @@ export const orderApi = createApi({
       query: ({ orderId, orderStatus }) => ({
         url: `/${orderId}?orderStatus=${orderStatus}`,
         method: "PUT",
-       
+
       }),
       invalidatesTags: ["orderData"],
     }),
 
     updatePaymentStatus: builder.mutation({
-      query: ({ orderId,paymentType, paymentStatus }) => ({
+      query: ({ orderId, paymentType, paymentStatus }) => ({
         url: `/payment/${orderId}`,
         method: "PUT",
-        params: { paymentType, paymentStatus }      
+        params: { paymentType, paymentStatus }
       }),
       invalidatesTags: ["orderData"],
     }),
@@ -59,9 +69,10 @@ export const orderApi = createApi({
 
 // Auto-generated React hooks
 export const {
-usePlaceOrderDirectlyMutation,
-useGetOrderInfoQuery,
-useUpdateOrderStatusMutation,
-useUpdatePaymentStatusMutation,
+  usePlaceOrderDirectlyMutation,
+  useGetOrderInfoQuery,
+  useUpdateOrderStatusMutation,
+  useUpdatePaymentStatusMutation,
+  usePlaceCartOrderMutation,
 
 } = orderApi;

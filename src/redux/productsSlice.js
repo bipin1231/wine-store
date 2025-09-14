@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  checkoutProduct: [],
+  checkoutProduct: null,
   orderId:null,
+  orderNumber:null
 };
 
 const productsSlice = createSlice({
@@ -10,7 +11,7 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
  setCheckoutProduct: (state, action) => {
-  state.checkoutProduct.push(action.payload);
+  state.checkoutProduct=action.payload;
 
     },
  setOrderId: (state, action) => {
@@ -21,15 +22,27 @@ const productsSlice = createSlice({
   state.orderId=null
 
     },
+     setOrderNumber: (state, action) => {
+  state.orderNumber=action.payload
+
+    },
+ clearOrderNumber: (state, action) => {
+  state.orderNumber=null
+
+    },
     clearCheckoutProduct: (state) => {
       state.checkoutProduct = [];
     },
-  updateQuantity: (state, action) => {
+    updateCartItemCheckoutQuantity: (state, action) => {
       const { id, quantity } = action.payload;
-      const product = state.checkoutProduct.find(p => p.productSizeId === id);
+      const product = state.checkoutProduct.find(p => p.cartItemId === id);
       if (product) {
         product.quantity = quantity;
       }
+    },
+  updateQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const product = state.checkoutProduct.quantity=quantity;
     },
     removeProduct: (state, action) => {
       state.products = state.checkoutProduct.filter(p => p.id !== action.payload);
@@ -38,5 +51,7 @@ const productsSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { setCheckoutProduct, clearCheckoutProduct, updateQuantity,removeProduct,setOrderId,clearOrderId } = productsSlice.actions;
+export const { setCheckoutProduct, clearCheckoutProduct, updateQuantity,removeProduct,setOrderId,clearOrderId,setOrderNumber,clearOrderNumber ,
+  updateCartItemCheckoutQuantity
+} = productsSlice.actions;
 export default productsSlice.reducer;

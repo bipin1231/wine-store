@@ -54,7 +54,7 @@ export default function AuthPage() {
     try {
       await verifyOtp({ email: signupData.email, otp }).unwrap();
       toast.success("OTP verified successfully!");
-      navigate("/login");
+      navigate("/auth");
     } catch (error) {
       toast.error(error?.data?.message || "OTP verification failed!");
     }

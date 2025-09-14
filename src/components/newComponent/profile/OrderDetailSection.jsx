@@ -19,6 +19,8 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
 
+  
+
   if (!orders || orders.length === 0) {
     return (
       <div className="text-center py-12">
@@ -116,7 +118,7 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
                     <Receipt className="h-5 w-5 text-[#8b5a2b]" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-[#2c2c2c]">Order #{order.id}</h3>
+                    <h3 className="font-medium text-[#2c2c2c]">Order #{order.orderNumber}</h3>
                     <p className="text-sm text-gray-500 flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
                       {formatDate(order.orderDate)}

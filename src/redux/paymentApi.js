@@ -9,10 +9,10 @@ export const paymentApi=createApi({
   tagTypes: ["payment"],
   endpoints:builder=>({
     initEsewa:builder.mutation({
-         query: ({ orderId, amount }) => ({
+         query: ({ orderNumber, amount }) => ({
         url: "api/payment/init",
         method: "POST",
-        params: { orderId, amount }
+        params: { orderNumber, amount }
       }),
             invalidatesTags: [] 
      

@@ -18,10 +18,10 @@ function Category() {
     label: d.name,
     value: d.name
   })) || [];
-console.log(data);
+
 
   const onSubmit = async (formData) => {
-   console.log('Raw formData:', formData);
+
 
 
 
@@ -30,7 +30,7 @@ console.log(data);
     parentCategory: formData?.parentCategory?.value || null,
     image: formData.image[0], // ✅ grab the first selected file
   };
-  console.log("payload issssp",payload);
+
   
 
   const data=new FormData();
@@ -40,7 +40,9 @@ console.log(data);
   data.append('image',payload.image)
 
     try {
-      await addCategoryMutation(data);
+      const res=await addCategoryMutation(data).unwrap();
+      console.log(res);
+      
     refetch();
       
     } catch (error) {
