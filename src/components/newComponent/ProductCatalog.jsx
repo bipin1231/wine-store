@@ -37,8 +37,14 @@ const SelectItem = ({ value, children }) => (
 const ProductCatalog = () => {
   const { searchQuery } = useParams();
   const { searchQueryCategory } = useLocation();
+
   const queryCat = new URLSearchParams(searchQueryCategory);
+
   const categoryQuery = queryCat.get("category");
+  console.log("searchQueryCategory",searchQueryCategory);
+  
+  console.log(searchQuery);
+  
 
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -48,8 +54,8 @@ const ProductCatalog = () => {
   const [activeFilters, setActiveFilters] = useState(0);
 
 
+
   
-  const { data: categories = [] } = useGetCategoryQuery();
   const { data: productBySize = [], error, isLoading  } = useGetProductsBySizeAllQuery({
     skip: searchQuery,
   });
@@ -57,6 +63,11 @@ const ProductCatalog = () => {
 
   const { data: productBySizeBySearchQuery = [] } =
     useGetProductsByNameQuery(searchQuery, { skip: !searchQuery });
+     console.log("productBySize",productBySize);
+
+    console.log("productBySizeBySearchQuery",productBySizeBySearchQuery);
+
+    
 
   const [queryFilters, setQueryFilters] = useState(null);
 
@@ -106,7 +117,7 @@ const ProductCatalog = () => {
   };
 
   const getVisibleProducts = () => {
-    if (searchQuery && productBySizeBySearchQuery?.length > 0) {
+    if (searchQuery) {
       return productBySizeBySearchQuery;
     } else if (filteredProductsQuery?.content?.length > 0) {
       return filteredProductsQuery.content;

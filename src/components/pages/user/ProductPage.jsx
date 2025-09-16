@@ -17,12 +17,10 @@ export default function ProductPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { productSizeId } = location.state || {};
-  console.log("product id", productId);
-  console.log("product size id", productSizeId);
+
 
   const { data: product, error, isLoading } = useGetProductsByIdQuery(productId);
 
-  console.log("product data", product);
 
   const [selectedSize, setSelectedSize] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -110,7 +108,7 @@ export default function ProductPage() {
     if (!selectedSize) return alert("Please select a size.");
     if (!userId) return alert("Please login to proceed with purchase.");
 
-    console.log("selectde product info", selectedSize);
+
 
     try {
       dispatch(clearCheckoutProduct())

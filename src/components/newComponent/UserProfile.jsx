@@ -40,6 +40,7 @@ import DeliveryForm from "./checkout/DeliveryForm";
 import UserInformation from "./profile/UserInformation";
 import OrderDetailSection from "./profile/OrderDetailSection";
 import { useNavigate } from "react-router-dom";
+import { setCheckoutProduct,setOrderId,setOrderNumber } from "../../redux/productsSlice";
 
 export default function UserProfilePage () {
   const [activeSection, setActiveSection] = useState("personal");
@@ -57,6 +58,7 @@ const [updateOrderStatusMutation]=useUpdateOrderStatusMutation();
     const [addDeliveryInfo] = useAddDeliveryInfoMutation();
     const [updateDeliveryInfo] = useUpdateDeliveryInfoMutation();
       const navigate=useNavigate();
+      const dispatch=useDispatch();
 
       const handleFormSubmit = async (formData) => {
     
@@ -125,6 +127,18 @@ const [updateOrderStatusMutation]=useUpdateOrderStatusMutation();
       
       toast.error("failed to cancel order")
     }
+  }
+  const handleOrderPayment=async(orderData)=>{
+
+   dispatch(setOrderId(orderData.id))
+   dispatch(setOrderNumber(orderData.orderNumber))
+   if(orderData.orderItem.length>1){
+   dispatch(setCheckoutProduct(orderData.orderItem))
+   }else{
+       dispatch(setCheckoutProduct(orderData.orderItem[0]))
+       navigate("/checkout/payment")
+   }
+    
   }
   const sidebarVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -370,6 +384,7 @@ const [updateOrderStatusMutation]=useUpdateOrderStatusMutation();
     <OrderDetailSection 
     orders={orderInfo?.data || []} 
     handleOrderStatus={handleOrderStatus}
+    handleOrderPayment={handleOrderPayment}
     />
   </div>
 )}

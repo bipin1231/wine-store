@@ -16,7 +16,7 @@ function App() {
 
    const dispatch = useDispatch();
   const { data, isSuccess,error } = useGetCurrentUserQuery();
-  console.log("fsfsdfsdfsdfsf",data);
+
 
 
   useEffect(() => {

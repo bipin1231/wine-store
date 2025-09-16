@@ -195,7 +195,7 @@ console.log(orderNumber);
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 overflow-hidden rounded-lg">
                       <img
-                        src={p.imageUrl[0]}
+                        src={p?.imageUrl?.[0]}
                         alt={p.name}
                         className="w-full h-full object-cover"
                       />

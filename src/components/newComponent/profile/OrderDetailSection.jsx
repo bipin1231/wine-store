@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { motion,AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Package,
@@ -15,11 +15,11 @@ import {
   MapPin
 } from "lucide-react";
 
-const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
+const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) => {
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
 
-  
+
 
   if (!orders || orders.length === 0) {
     return (
@@ -32,11 +32,14 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
   }
 
   const filteredOrders = orders.filter(order => {
-    if (activeFilter === "all") return true;
-    // You would need to add status to your order data structure
-    // For now, we'll assume all are delivered
-    return activeFilter === "delivered";
+
+    if (activeFilter === "processing") return order.orderStatus == "processing"
+    if (activeFilter === "delivered") return order.orderStatus == "delivered"
+    return true;
+
   });
+  console.log(filteredOrders);
+
 
   const getOrderStatus = (order) => {
     // In a real app, you would check order.status
@@ -100,7 +103,7 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
           const status = getOrderStatus(order);
           const isExpanded = expandedOrder === order.id;
           const orderTotal = calculateOrderTotal(order);
-          
+
           return (
             <motion.div
               key={order.id}
@@ -125,16 +128,16 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-6">
                   <div className="text-right">
                     <p className="font-medium text-[#2c2c2c]">Rs.{order.totalPrice.toFixed(2)}</p>
                     <div className="flex items-center text-sm">
-                      {getStatusIcon(status)}
-                      <span className="ml-1">{status}</span>
+                      {getStatusIcon(order.orderStatus)}
+                      <span className="ml-1">{order.orderStatus}</span>
                     </div>
                   </div>
-                  
+
                   {isExpanded ? (
                     <ChevronUp className="h-5 w-5 text-gray-400" />
                   ) : (
@@ -161,10 +164,10 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
                           {order.orderItem.map((item, index) => (
                             <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
                               <div>
-                                <p className="font-medium text-[#2c2c2c]">{item.productName}</p>
+                                <p className="font-medium text-[#2c2c2c]">{item.productName} {item.size}</p>
                                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                               </div>
-                              <p className="font-medium text-[#2c2c2c]">${(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="font-medium text-[#2c2c2c]">Rs.{(item.price * item.quantity).toFixed(2)}</p>
                             </div>
                           ))}
                         </div>
@@ -210,7 +213,9 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
                           <CreditCard className="h-5 w-5 mr-2 text-[#8b5a2b]" />
                           Payment Method
                         </h4>
-                        <p className="text-sm text-gray-600">Cash On Delivery</p>
+                        <p className="text-sm text-gray-600">{order.paymentType}</p>
+                        <h4>Payment Status</h4>
+                        <p className="text-sm text-gray-600">{order.paymentStatus}</p>
                       </div>
 
                       {/* Action Buttons */}
@@ -218,11 +223,21 @@ const OrderDetailSection = ({ orders ,handleOrderStatus}) => {
                         {/* <button className="px-4 py-2 text-sm border border-[#8b5a2b] text-[#8b5a2b] rounded-full hover:bg-[#f8f7f4] transition-colors">
                           View Invoice
                         </button> */}
-                        <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity"
-                        onClick={()=>handleOrderStatus()}
-                        >
-                          Cancel
-                        </button>
+                       <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity"
+                            onClick={() => handleOrderStatus()}
+                          >
+                            Cancel
+                          </button> 
+                          {!order.paymentType &&
+                          <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity"
+                              onClick={() => handleOrderPayment(order)}
+                            >
+                              Pay
+                            </button>
+                          }
+                            
+                        
+
                         {/* <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity">
                           Order Again
                         </button> */}

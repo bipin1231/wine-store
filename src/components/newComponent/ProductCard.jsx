@@ -70,7 +70,7 @@ setIsButtonDisabled(false)
       {/* Image Container */}
       <div className="relative pt-[100%] bg-gray-50 overflow-hidden">
         <img 
-          src={`http://localhost:8080/images/${product.imageUrl}`}
+          src={product.imageUrl}
           alt={product.name}
           className="absolute top-0 left-0 w-full h-full object-cover p-6 transition-transform duration-500 group-hover:scale-110"
         />

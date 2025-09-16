@@ -54,7 +54,7 @@ function Navbar() {
   };
 
   return (
-     <nav className="hidden lg:flex justify-center gap-4 py-4 bg-white font-medium z-40 relative shadow-sm">
+     <nav className=" flex justify-center gap-4 py-4 bg-white font-medium z-40 relative shadow-sm">
         <NavLink
           to="/"
           end

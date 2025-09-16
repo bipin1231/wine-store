@@ -16,10 +16,13 @@ export const paymentApi=createApi({
       }),
             invalidatesTags: [] 
      
-  })
+  }),
+      paymentSuccess: builder.query({
+      query: (data) => `api/payment/success?data=${data}`,
+    }),
 
 })
 
 });
 
-export const { useInitEsewaMutation } = paymentApi;
+export const { useInitEsewaMutation,usePaymentSuccessQuery } = paymentApi;

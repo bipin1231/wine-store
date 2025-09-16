@@ -187,7 +187,7 @@ const PaymentPage = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 overflow-hidden rounded-lg">
                     <img
-                      src={checkoutProduct.imageUrl[0]}
+                      src={checkoutProduct?.imageUrl?.[0]}
                       alt={checkoutProduct.name}
                       className="w-full h-full object-cover"
                     />

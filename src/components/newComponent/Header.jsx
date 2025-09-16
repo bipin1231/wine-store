@@ -1,22 +1,21 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { FaSearch, FaMapMarkerAlt, FaUser, FaHeart, FaShoppingCart, FaStar, FaPlus } from "react-icons/fa";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { FaSearch, FaMapMarkerAlt, FaUser, FaHeart, FaShoppingCart, FaStar, FaPlus, FaArrowLeft } from "react-icons/fa";
 import { Wine, Beer, Martini } from "lucide-react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useGetProductsNameListByNameQuery } from "../../redux/productApi";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "./Navbar";
 import { debounce } from "lodash";
-import { useSelector,shallowEqual } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
 import { useLogoutMutation } from "../../redux/authApi";
 import { useDispatch } from "react-redux";
 import { setUserInfo } from "../../redux/userSlice";
 
-
 export default function HomePage() {
   const location = useLocation();
-  const userStoredData = useSelector(state => state.users.userInfo,shallowEqual)
-  console.log("userstoreddata", userStoredData);
+  const userStoredData = useSelector(state => state.users.userInfo, shallowEqual)
+  const [mobileSearchActive, setMobileSearchActive] = useState(false);
+  const searchInputRef = useRef(null);
 
   const [cartItems, setCartItems] = useState(0);
   const [wishlist, setWishlist] = useState([]);
@@ -26,8 +25,9 @@ export default function HomePage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showUserDropdown, setShowUserDropdown] = useState(false); // New state for user dropdown
   const navigate = useNavigate();
-const [logoutMutation]=useLogoutMutation();
+  const [logoutMutation] = useLogoutMutation();
   const dispatch = useDispatch();
+  
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,9 +43,17 @@ const [logoutMutation]=useLogoutMutation();
     };
   }, [showUserDropdown]);
 
+  // Focus search input when mobile search is activated
+  useEffect(() => {
+    if (mobileSearchActive && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [mobileSearchActive]);
+
   const handleSearch = (e) => {
     if (inputValue && (e?.key == 'Enter' || e == 'Enter')) {
-      navigate(`/product-catalog/${inputValue}`)
+      navigate(`/product-catalog/${inputValue}`);
+      setMobileSearchActive(false);
     }
   }
 
@@ -80,14 +88,10 @@ const [logoutMutation]=useLogoutMutation();
     try {
       await logoutMutation();
       dispatch(setUserInfo(null))
-       console.log("Logging out...");
-
+      console.log("Logging out...");
     } catch (error) {
-      console.log("failed to logout",error);
-      
-      
+      console.log("failed to logout", error);
     }
-  
 
     // For example: dispatch logout action
     setShowUserDropdown(false);
@@ -108,20 +112,21 @@ const [logoutMutation]=useLogoutMutation();
   const inputStyle = "bg-white border border-gray-200 rounded-full px-4 py-3 w-full focus:outline-none focus:ring-1 focus:ring-[#8b5a2b]";
 
   return (
-    <div className="bg-[#f8f7f4]font-sans text-[#2c2c2c]">
+    <div className="bg-[#f8f7f4] font-sans text-[#2c2c2c]">
       {/* Navbar */}
       <header className="sticky top-0 z-50 py-4 px-6 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <Link
-          to={"/"}
-          >
-          <div className="text-2xl font-bold flex items-center">
-            <Wine className="text-[#a63f3f] mr-2" />
-            <span className="text-[#2c2c2c]">Vino</span>
-            <span className="text-[#a63f3f]">Selecto</span>
-          </div>
-</Link>
-          <div className="flex-1 flex items-center gap-2 w-full md:w-auto max-w-2xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Logo - Hidden on mobile when search is active */}
+          <Link to={"/"} className={mobileSearchActive ? "hidden md:block" : "block"}>
+            <div className="text-2xl font-bold flex items-center">
+              <Wine className="text-[#a63f3f] mr-2" />
+              <span className="text-[#2c2c2c]">Vino</span>
+              <span className="text-[#a63f3f]">Selecto</span>
+            </div>
+          </Link>
+
+          {/* Desktop Search */}
+          <div className="flex-1 hidden md:flex items-center gap-2 max-w-2xl">
             <div className="relative w-full">
               <input
                 placeholder="Search for wines, spirits, beer..."
@@ -170,11 +175,70 @@ const [logoutMutation]=useLogoutMutation();
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* <button className="flex items-center gap-1 text-sm font-medium">
-              <FaMapMarkerAlt className="text-[#8b5a2b]" />
-              <span>Locations</span>
-            </button> */}
+          {/* Mobile Search - YouTube style */}
+          <div className={`md:hidden fixed inset-0 bg-white z-50 transform transition-transform duration-300 ${mobileSearchActive ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className="flex items-center p-4 border-b border-gray-200">
+              <button 
+                onClick={() => setMobileSearchActive(false)}
+                className="p-2 mr-3 text-gray-700"
+              >
+                <FaArrowLeft />
+              </button>
+              <div className="relative flex-1">
+                <input
+                  ref={searchInputRef}
+                  placeholder="Search for wines, spirits, beer..."
+                  className="bg-gray-100 border-0 rounded-full px-4 py-3 w-full focus:outline-none focus:ring-1 focus:ring-[#8b5a2b]"
+                  value={inputValue}
+                  onKeyDown={(e) => handleSearch(e)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setInputValue(val);
+                    debouncedSetSearchQuery(val);
+                  }}
+                  onFocus={() => setIsSearchActive(true)}
+                />
+                <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <FaSearch onClick={() => handleSearch('Enter')} />
+                </button>
+              </div>
+            </div>
+            
+            {/* Search suggestions */}
+            <AnimatePresence>
+              {inputValue && productNameList.length > 0 && (
+                <motion.ul
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-white py-2 max-h-96 overflow-y-auto"
+                >
+                  {productNameList.map((name, index) => (
+                    <Link
+                      to={`product-catalog/${name}`}
+                      key={index}
+                      onClick={() => setMobileSearchActive(false)}
+                    >
+                      <li className="px-6 py-3 flex items-center hover:bg-gray-100 transition">
+                        <FaSearch className="text-gray-400 mr-3" />
+                        <span>{name}</span>
+                      </li>
+                    </Link>
+                  ))}
+                </motion.ul>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Right side icons */}
+          <div className={`flex items-center gap-4 ${mobileSearchActive ? 'md:flex hidden' : 'flex'}`}>
+            {/* Mobile search toggle button */}
+            <button 
+              className="md:hidden p-2 text-gray-700"
+              onClick={() => setMobileSearchActive(true)}
+            >
+              <FaSearch />
+            </button>
 
             <button className="relative p-2">
               <FaHeart className="text-gray-700" />
@@ -232,22 +296,19 @@ const [logoutMutation]=useLogoutMutation();
               )}
             </div>
 
-<Link
-to={'/cart-page'}
->
-            <button className="relative p-2">
-              <FaShoppingCart className="text-gray-700" />
-              {cartItems > 0 && (
-                <span className="absolute top-0 right-0 bg-[#a63f3f] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {cartItems}
-                </span>
-              )}
-            </button></Link>
+            <Link to={'/cart-page'}>
+              <button className="relative p-2">
+                <FaShoppingCart className="text-gray-700" />
+                {cartItems > 0 && (
+                  <span className="absolute top-0 right-0 bg-[#a63f3f] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    {cartItems}
+                  </span>
+                )}
+              </button>
+            </Link>
           </div>
         </div>
       </header>
-
-
     </div>
   );
 }
