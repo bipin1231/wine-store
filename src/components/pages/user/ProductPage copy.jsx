@@ -3,7 +3,7 @@ import { Star, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useParams,useLocation } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import { addToCart } from "../../../redux/cartSlice";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";;
 import { useGetProductsByIdQuery } from "../../../redux/productApi";
 import { useGetCategoryQuery } from "../../../redux/categoryApi";
 import { useAddToCartMutation } from "../../../redux/cartApi";

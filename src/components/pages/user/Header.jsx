@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Wine, Search, ShoppingCart, User } from 'lucide-react';
-import {Button, ButtonGroup} from "@nextui-org/button"
-import { Input } from "@nextui-org/input"
+import {Button, ButtonGroup} from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 import { useSelector } from 'react-redux';
 
 export default function Header() {

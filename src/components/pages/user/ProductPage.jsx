@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";;
 import { useGetProductsByIdQuery } from "../../../redux/productApi";
 import { useAddToCartMutation } from "../../../redux/cartApi";
 import { motion, AnimatePresence } from "framer-motion";

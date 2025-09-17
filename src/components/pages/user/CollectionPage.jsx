@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom'; // React Router Link
 import { Wine, Search, ShoppingCart, User, ArrowRight } from 'lucide-react';
-import {Button, ButtonGroup} from "@nextui-org/button";
+import {Button, ButtonGroup} from "@nextui-org/react";;
 import { useSelector } from 'react-redux';
 import { useGetCategoryQuery } from '../../../redux/categoryApi';
 

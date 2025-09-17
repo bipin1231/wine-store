@@ -2,8 +2,8 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Link,useNavigate } from 'react-router-dom';
 import { Wine, Search, ShoppingCart, User } from 'lucide-react';
-import { Button, ButtonGroup } from "@nextui-org/button"
-import { Input } from "@nextui-org/input"
+import { Button, ButtonGroup } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 import { useSelector } from 'react-redux';
 import { useGetProductsNameListByNameQuery } from '../../redux/productApi';
 import { debounce } from 'lodash'; // Import lodash debounce
