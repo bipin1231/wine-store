@@ -1,9 +1,10 @@
 // src/redux/api/deliveryApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithAuth } from "./baseQueryWithAuth";
 
 export const deliveryApi = createApi({
   reducerPath: "deliveryApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:8080/api" }), // adjust if needed
+  baseQuery: baseQueryWithAuth, // adjust if needed
   tagTypes: ["DeliveryInfo"],
   endpoints: (builder) => ({
     // ✅ Add Delivery Info

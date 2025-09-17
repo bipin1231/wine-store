@@ -72,7 +72,7 @@ export default function AuthPage() {
   };
 
   const handleGoogleLogin=async()=>{
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = "https://springboot-production-e29d.up.railway.app/oauth2/authorization/google";
 
   }
 
