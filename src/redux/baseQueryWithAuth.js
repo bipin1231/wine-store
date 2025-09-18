@@ -6,3 +6,4 @@ export const baseQueryWithAuth = fetchBaseQuery({
     baseUrl: 'https://springboot-production-e29d.up.railway.app/',
     credentials: 'include', // send cookies automatically
 });
+
