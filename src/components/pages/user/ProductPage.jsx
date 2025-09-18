@@ -315,7 +315,7 @@ export default function ProductPage() {
                 {images.length > 0 ? (
                   <>
                     <img
-                      src={`http://localhost:8080/images/${images[currentImageIndex]}`}
+                      src={images[currentImageIndex]}
                       alt={product.name}
                       className="object-contain w-full h-full p-6"
                       onError={(e) => (e.target.style.display = "none")}
@@ -388,7 +388,7 @@ export default function ProductPage() {
                         }`}
                     >
                       <img
-                        src={`http://localhost:8080/images/${img}`}
+                        src={img}
                         alt={`Thumbnail ${index + 1}`}
                         className="object-cover w-full h-full"
                       />
