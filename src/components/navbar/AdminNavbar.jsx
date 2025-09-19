@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion,AnimatePresence } from 'framer-motion';
+import { FaUser } from "react-icons/fa";
+import { useSelector, shallowEqual } from 'react-redux';
+import { useLogoutMutation } from '../../redux/authApi';
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "../../redux/userSlice";
+
 
 
 const sidebarVariants = {
@@ -11,22 +17,47 @@ const sidebarVariants = {
 export default function AdminNavbar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
+
   const sidebarRef = useRef(null); // Reference for sidebar
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+
+
+  const [logoutMutation] = useLogoutMutation();
+  const userStoredData = useSelector(state => state.users.userInfo, shallowEqual)
+
+  const handleUserLogin = () => {
+    navigate('/auth')
+  }
+
+  const handleLogout = async () => {
+    // Add your logout logic here
+    try {
+      await logoutMutation();
+      dispatch(setUserInfo(null))
+      console.log("Logging out...");
+    } catch (error) {
+      console.log("failed to logout", error);
+    }
+
+    // For example: dispatch logout action
+    setShowUserDropdown(false);
+  }
+
+
   // Close sidebar when clicking outside of it
   useEffect(() => {
-    console.log(sidebarRef);
-    
+
+
     function handleClickOutside(event) {
-      console.log(event.target);
-      
+
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setIsSidebarOpen(false); // Close sidebar if clicked outside
       }
     }
-    
+
     if (isSidebarOpen) {
       document.addEventListener('mousedown', handleClickOutside); // Add listener when sidebar is open
     }
@@ -39,7 +70,7 @@ export default function AdminNavbar() {
   const navItems = [
     { path: '/', label: 'Dashboard' },
     { path: '/product-lists', label: 'Products' },
-        { path: '/category', label: 'Category' },
+    { path: '/category', label: 'Category' },
     { path: '/manage-products', label: 'Manage Products' },
     { path: '/add-products', label: 'Add Product' },
     { path: '/manage-sizes', label: 'Manage Sizes' },
@@ -78,9 +109,8 @@ export default function AdminNavbar() {
                 <Link
                   to={item.path}
                   onClick={toggleSidebar}
-                  className={`block px-4 py-2 rounded transition-colors duration-200 ${
-                    location.pathname === item.path ? 'bg-indigo-800' : 'hover:bg-indigo-600'
-                  }`}
+                  className={`block px-4 py-2 rounded transition-colors duration-200 ${location.pathname === item.path ? 'bg-indigo-800' : 'hover:bg-indigo-600'
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -119,12 +149,46 @@ export default function AdminNavbar() {
 
         {/* Admin Section */}
         <div className="flex items-center space-x-4">
-          <span className="text-gray-700">Admin User</span>
-          <img
-            src="/placeholder.svg?height=32&width=32"
-            alt="Admin"
-            className="w-8 h-8 rounded-full border-2 border-indigo-500"
-          />
+          <div className="relative user-dropdown-container">
+            {userStoredData ? (
+              // Show dropdown when user is logged in
+              <>
+                <button
+                  className="relative p-2"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                >
+                  <FaUser className="text-gray-700" />
+                </button>
+
+                <AnimatePresence>
+                  {showUserDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                    >
+                      
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 hover:bg-[#f1f1f1] transition text-sm text-red-600"
+                      >
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            ) : (
+              // Navigate to auth when user is not logged in
+              <button
+                className="relative p-2"
+                onClick={() => handleUserLogin()}
+              >
+                <FaUser className="text-gray-700" />
+              </button>
+            )}
+          </div>
         </div>
       </header>
     </>

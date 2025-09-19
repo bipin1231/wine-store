@@ -1,8 +1,6 @@
-
 "use client";
-import React, { useState } from "react";
-import { FaSearch, FaMapMarkerAlt, FaUser, FaHeart, FaShoppingCart, FaStar,FaPlus } from "react-icons/fa";
-import { Wine, Grape, Beer, Martini, ChevronDown, Star, ShoppingCart, Plus } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Wine, Beer, Martini } from "lucide-react";
 import LiquorHero from "./LiquorHero";
 import { useGetProductsBySizeAllQuery } from "../../redux/productApi";
 import ProductCard from "./ProductCard";
@@ -38,63 +36,71 @@ const categories = [
     ],
   },
 ];
-function HomePage() {
-    const [activeDropdown, setActiveDropdown] = useState(null);
-  const baseBg = "bg-[#f8f7f4]";
-  const baseText = "text-[#2c2c2c]";
-  const accentText = "text-[#8b5a2b]";
-  const highlight = "text-[#a63f3f]";
 
-    const buttonStyle = "bg-[#2c2c2c] text-white rounded-full px-6 py-2 transition hover:opacity-90 shadow-md";
-    const inputStyle = "bg-white border border-gray-200 rounded-full px-4 py-3 w-full focus:outline-none focus:ring-1 focus:ring-[#8b5a2b]";
-  
-  
-    const {data:productData=[]}=useGetProductsBySizeAllQuery();
-    console.log(productData);
-    
+function HomePage() {
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [shouldFetch, setShouldFetch] = useState(false);
+  const sectionRef = useRef(null);
+
+  // 👇 Observe when "Latest Arrivals" section is in view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldFetch(true); // enable the query
+          observer.disconnect(); // stop observing after first fetch
+        }
+      },
+      { threshold: 0.2 } // trigger when 20% of section is visible
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // 👇 Fetch only when `shouldFetch` is true
+  const { data: productData = [], isLoading } = useGetProductsBySizeAllQuery(undefined, {
+    skip: !shouldFetch,
+  });
+
   return (
     <>
-    <LiquorHero/>
-     <section className="py-12 bg-white">
+      <LiquorHero />
+      <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Browse Categories</h2>
-          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6"> */}
-             <div className="flex justify-around">
-            {categories.map((category, index) => (
-              <Link
-             to={`product-catalog/${category.title}`}
-              >
-              <div key={category.title} className="bg-[#f8f7f4] rounded-xl p-6 text-center transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
-                <div className="w-16 h-16 bg-[#e6d5c1] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <category.icon className="w-8 h-8 text-[#8b5a2b]" />
+          <div className="flex justify-around">
+            {categories.map((category) => (
+              <Link to={`product-catalog/${category.title}`} key={category.title}>
+                <div className="bg-[#f8f7f4] rounded-xl p-6 text-center transition-transform duration-300 hover:-translate-y-1 cursor-pointer">
+                  <div className="w-16 h-16 bg-[#e6d5c1] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <category.icon className="w-8 h-8 text-[#8b5a2b]" />
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">{category.title}</h3>
+                  <p className="text-sm text-gray-600">{category.items.length} Categories</p>
                 </div>
-                <h3 className="font-bold text-lg mb-2">{category.title}</h3>
-                <p className="text-sm text-gray-600">{category.items.length} Categories</p>
-              </div>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-        {/* Latest Arrivals Section */}
-      <section className="py-16 bg-[#f8f7f4]">
+      {/* Latest Arrivals Section */}
+      <section className="py-16 bg-[#f8f7f4]" ref={sectionRef}>
         <div className="max-w-7xl mx-auto px-4">
-     
-            <h2 className="text-3xl font-bold text-center mb-8">Latest Arrivals</h2>
-          
-   
-          
+          <h2 className="text-3xl font-bold text-center mb-8">Latest Arrivals</h2>
+
+          {isLoading && <p className="text-center">Loading products...</p>}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {productData.map(product => (
+            {productData.map((product) => (
               <ProductCard key={product.productVariantId} product={product} />
             ))}
           </div>
         </div>
       </section>
 
-
-        {/* Best Selling Section */}
+      {/* Best Selling Section */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
@@ -106,13 +112,7 @@ function HomePage() {
               Discover our customers' favorites - premium selections loved by wine enthusiasts
             </p>
           </div>
-          
-          {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {bestSellers.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div> */}
-          
+
           <div className="text-center mt-12">
             <button className="bg-[#2c2c2c] text-white rounded-full px-8 py-3 font-medium shadow hover:opacity-90">
               Browse All Products
@@ -120,9 +120,8 @@ function HomePage() {
           </div>
         </div>
       </section>
-
     </>
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;

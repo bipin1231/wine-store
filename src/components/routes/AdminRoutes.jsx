@@ -8,6 +8,8 @@ import AddProduct from '../pages/user/admin/AddProduct'
 import AuthContainer from '../auth/AuthContainer'
 import Category from '../pages/user/admin/Category'
 import ManageSizes from '../pages/user/admin/manageSize/ManageSizes'
+
+import AuthLayout from '../layout/AuthLayout.jsx';
 function AdminRoutes() {
 
   return (
@@ -23,12 +25,16 @@ function AdminRoutes() {
     <Route path='category' element={<Category/>}/>
     <Route path='add-products' element={<AddProduct/>}/>
     <Route path='manage-sizes' element={<ManageSizes/>}/>
-    <Route path='login' element={<AuthContainer/>}/>
+   
   
 
     
 
     </Route>
+          <Route element={<AuthLayout />}>
+            <Route path="auth" element={<AuthContainer />} />
+    
+          </Route>
   </Routes>
   )
 }
