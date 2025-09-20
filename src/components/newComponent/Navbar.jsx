@@ -55,7 +55,8 @@ function Navbar() {
   };
 
   return (
-    <nav className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 py-3 md:py-4 bg-white font-medium z-40 relative shadow-sm overflow-x-auto scrollbar-hide">
+    <nav className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 py-3 md:py-4 bg-white font-medium relative shadow-sm overflow-visible z-50">
+
       <NavLink
         to="/"
         end
@@ -95,33 +96,41 @@ function Navbar() {
       </NavLink>
 
       {categories.map((category) => (
-        <div
-          key={category.title}
-          className="relative group whitespace-nowrap"
-          onMouseEnter={() => setActiveDropdown(category.title)}
-          onMouseLeave={() => setActiveDropdown(null)}
-        >
-          <NavLink
-            to={`/product-catalog/${category.title}`}
-            className={`flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-medium transition-colors relative ${
-              isCategoryActive(category)
-                ? "text-[#a63f3f]"
-                : "text-gray-700 hover:text-[#a63f3f]"
-            }`}
-          >
-            <category.icon className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span>{category.title}</span>
-            <ChevronDown
-              className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 ${
-                isCategoryActive(category) ? "rotate-180" : "rotate-0"
-              }`}
-            />
-            <span
-              className={`absolute left-0 bottom-0 h-[2px] bg-[#a63f3f] transition-all duration-300 ${
-                isCategoryActive(category) ? "w-full" : "w-0"
-              }`}
-            />
-          </NavLink>
+      <div
+  key={category.title}
+  className="relative group whitespace-nowrap"
+  onMouseEnter={() => setActiveDropdown(category.title)}
+  onMouseLeave={() => setActiveDropdown(null)}
+>
+  <NavLink
+    to={`/product-catalog/${category.title}`}
+    className={`flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-medium transition-colors relative ${
+      isCategoryActive(category)
+        ? "text-[#a63f3f]"
+        : "text-gray-700 hover:text-[#a63f3f]"
+    }`}
+    onClick={(e) => {
+      // ✅ Mobile behavior
+      if (window.innerWidth < 768) {
+        e.preventDefault(); // stop redirect
+        setActiveDropdown(activeDropdown === category.title ? null : category.title);
+      }
+    }}
+  >
+    <category.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+    <span>{category.title}</span>
+    <ChevronDown
+      className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-300 ${
+        activeDropdown === category.title ? "rotate-180" : "rotate-0"
+      }`}
+    />
+    <span
+      className={`absolute left-0 bottom-0 h-[2px] bg-[#a63f3f] transition-all duration-300 ${
+        isCategoryActive(category) ? "w-full" : "w-0"
+      }`}
+    />
+  </NavLink>
+
 
           {activeDropdown === category.title && (
             <div className="absolute top-full left-0 mt-0 w-56 sm:w-64 md:w-80 bg-white rounded-xl shadow-lg z-50 p-3 sm:p-4 border border-gray-100">

@@ -44,7 +44,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['cart', 'users'], // only persist cart and user (RTK Query state is not persisted)
+  whitelist: ['cart'], // only persist cart and user (RTK Query state is not persisted)
 };
 
 // 🔐 Wrap root reducer with persistReducer

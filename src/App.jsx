@@ -15,6 +15,10 @@ function App() {
   skip:userTypeAfterLogin
  });
   const [userType, setUserType] = useState("user");
+  console.log("app.jsx from backend",data);
+  console.log("userTypeAfterLogin",userTypeAfterLogin);
+  
+  
 
 
   useEffect(() => {
