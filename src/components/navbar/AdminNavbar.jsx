@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation ,useNavigate} from 'react-router-dom';
 import { motion,AnimatePresence } from 'framer-motion';
 import { FaUser } from "react-icons/fa";
 import { useSelector, shallowEqual } from 'react-redux';
@@ -24,6 +24,7 @@ export default function AdminNavbar() {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
 const dispatch=useDispatch();
+  const navigate = useNavigate();
 
   const [logoutMutation] = useLogoutMutation();
   const userStoredData = useSelector(state => state.users.userInfo, shallowEqual)
