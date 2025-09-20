@@ -1,161 +1,196 @@
-import React,{useState} from 'react'
-import {  ChevronDown} from "lucide-react";
-import { NavLink ,useLocation} from "react-router-dom";
-import { Wine, Grape, Beer, Martini, Star, ShoppingCart, Plus } from "lucide-react";
-const categories = [
-  {
-    title: "Wine",
-    icon: Wine,
-    items: [
-      { name: "Red Wine", href: "/wine/red" },
-      { name: "White Wine", href: "/wine/white" },
-    ],
-  },
-  {
-    title: "Spirits",
-    icon: Martini,
-    items: [
-      { name: "Whiskey", href: "/spirits/whiskey" },
-      { name: "Vodka", href: "/spirits/vodka" },
-      { name: "Gin", href: "/spirits/gin" },
-      { name: "Rum", href: "/spirits/rum" },
-    ],
-  },
-  {
-    title: "Beer",
-    icon: Beer,
-    items: [
-      { name: "Craft Beer", href: "/beer/craft" },
-      { name: "Light Beer", href: "/beer/import" },
-      { name: "Strong", href: "/beer/domestic" },
-      { name: "Super Strong", href: "/beer/light" },
-    ],
-  },
-];
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion,AnimatePresence } from 'framer-motion';
+import { FaUser } from "react-icons/fa";
+import { useSelector, shallowEqual } from 'react-redux';
+import { useLogoutMutation } from '../../redux/authApi';
+import { useDispatch } from "react-redux";
+import { setUserInfo } from "../../redux/userSlice";
 
-function Navbar() {
-    const location = useLocation();
-    const [activeDropdown, setActiveDropdown] = useState(null);
 
-    const isCategoryActive = (category) => {
-    const path = location.pathname.toLowerCase();
 
-    // highlight if parent matches
-    if (path.includes(category.title.toLowerCase())) return true;
+const sidebarVariants = {
+  open: { x: 0, transition: { type: 'spring', stiffness: 300, damping: 30 } },
+  closed: { x: '-100%', transition: { type: 'spring', stiffness: 300, damping: 30 } },
+};
 
-    // highlight if any item inside matches
-    if (category.items) {
-      return category.items.some(item =>
-        path.includes(item.name.toLowerCase())
-      );
+export default function AdminNavbar() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  const sidebarRef = useRef(null); // Reference for sidebar
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+const dispatch=useDispatch();
+
+  const [logoutMutation] = useLogoutMutation();
+  const userStoredData = useSelector(state => state.users.userInfo, shallowEqual)
+
+  const handleUserLogin = () => {
+    navigate('/auth')
+  }
+
+  const handleLogout = async () => {
+    // Add your logout logic here
+    try {
+      await logoutMutation();
+      dispatch(setUserInfo(null))
+      console.log("Logging out...");
+    } catch (error) {
+      console.log("failed to logout", error);
     }
 
-    return false;
-  };
+    // For example: dispatch logout action
+    setShowUserDropdown(false);
+  }
+
+
+  // Close sidebar when clicking outside of it
+  useEffect(() => {
+
+
+    function handleClickOutside(event) {
+
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsSidebarOpen(false); // Close sidebar if clicked outside
+      }
+    }
+
+    if (isSidebarOpen) {
+      document.addEventListener('mousedown', handleClickOutside); // Add listener when sidebar is open
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside); // Clean up event listener
+    };
+  }, [isSidebarOpen]);
+
+  const navItems = [
+    { path: '/', label: 'Dashboard' },
+    { path: '/product-lists', label: 'Products' },
+    { path: '/category', label: 'Category' },
+    { path: '/manage-products', label: 'Manage Products' },
+    { path: '/add-products', label: 'Add Product' },
+    { path: '/manage-sizes', label: 'Manage Sizes' },
+    { path: '/customers', label: 'Customers' },
+    { path: '/settings', label: 'Settings' },
+  ];
 
   return (
-     <nav className=" flex justify-center gap-4 py-4 bg-white font-medium z-40 relative shadow-sm">
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) =>
-            `relative px-4 py-2 text-sm font-medium transition-colors ${isActive ? "text-[#a63f3f]" : "text-gray-700 hover:text-[#a63f3f]"
-            }`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              Home
-              <span
-                className={`absolute left-0 bottom-0 h-[2px] bg-[#a63f3f] transition-all duration-300 ${isActive ? "w-full" : "w-0"
-                  }`}
-              />
-            </>
-          )}
-        </NavLink>
+    <>
+      {/* Sidebar */}
+      <motion.aside
+        ref={sidebarRef} // Attach ref to the sidebar
+        className="bg-indigo-700 text-white w-64 min-h-screen p-4 fixed left-0 top-0 bottom-0 z-50"
+        variants={sidebarVariants}
+        initial="closed"
+        animate={isSidebarOpen ? 'open' : 'closed'}
+      >
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold">Wine Admin</h1>
+          <button onClick={toggleSidebar} className="text-white hover:bg-indigo-600 p-2 rounded">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <nav>
+          <ul className="space-y-4">
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  onClick={toggleSidebar}
+                  className={`block px-4 py-2 rounded transition-colors duration-200 ${location.pathname === item.path ? 'bg-indigo-800' : 'hover:bg-indigo-600'
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </motion.aside>
 
-        <NavLink
-          to="/product-catalog"
-          end
-          className={({ isActive }) =>
-            `relative px-4 py-2 text-sm font-medium transition-colors ${isActive ? "text-[#a63f3f]" : "text-gray-700 hover:text-[#a63f3f]"
-            }`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              All Products
-              <span
-                className={`absolute left-0 bottom-0 h-[2px] bg-[#a63f3f] transition-all duration-300 ${isActive ? "w-full" : "w-0"
-                  }`}
-              />
-            </>
-          )}
-        </NavLink>
-
-        {categories.map((category) => (
-          <div
-            key={category.title}
-            className="relative group"
-            onMouseEnter={() => setActiveDropdown(category.title)}
-            onMouseLeave={() => setActiveDropdown(null)}
+      {/* Navbar */}
+      <header className="bg-white shadow-md p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          {/* Sidebar Toggle Button */}
+          <button
+            onClick={toggleSidebar}
+            className="text-indigo-700 hover:bg-gray-100 p-2 rounded-lg focus:outline-none"
           >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
 
-<NavLink
-  to={`/product-catalog/${category.title}`}
-  className={`flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors relative ${
-    isCategoryActive(category)
-      ? "text-[#a63f3f]"
-      : "text-gray-700 hover:text-[#a63f3f]"
-  }`}
->
-  <category.icon className="w-4 h-4" />
-  <span>{category.title}</span>
-  <ChevronDown
-    className={`w-4 h-4 transition-transform duration-300 ${
-      isCategoryActive(category) ? "rotate-180" : "rotate-0"
-    }`}
-  />
-  <span
-    className={`absolute left-0 bottom-0 h-[2px] bg-[#a63f3f] transition-all duration-300 ${
-      isCategoryActive(category) ? "w-full" : "w-0"
-    }`}
-  />
-</NavLink>
+          {/* Search Bar */}
+          <input
+            type="search"
+            placeholder="Search..."
+            className="w-64 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
 
-            {activeDropdown === category.title && (
-              <div className="absolute top-full left-0 mt-0 w-80 bg-white rounded-xl shadow-lg z-50 p-4 border border-gray-100">
-                <ul className="grid gap-2 mt-4">
-                  {category.items.map((item) => (
-                    <li key={item.name}>
-                      <NavLink
-                        to={`/product-catalog/${item.name}`}
-                        className={({ isActive }) =>
-                          `relative block px-3 py-2 rounded-md text-sm transition ${isActive
-                            ? "text-[#a63f3f] bg-gray-50"
-                            : "text-gray-700 hover:bg-gray-100"
-                          }`
-                        }
+        {/* Admin Section */}
+        <div className="flex items-center space-x-4">
+          <div className="relative user-dropdown-container">
+            {userStoredData ? (
+              // Show dropdown when user is logged in
+              <>
+                <button
+                  className="relative p-2"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                >
+                  <FaUser className="text-gray-700" />
+                </button>
+
+                <AnimatePresence>
+                  {showUserDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                    >
+                      
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 hover:bg-[#f1f1f1] transition text-sm text-red-600"
                       >
-                        {({ isActive }) => (
-                          <>
-                            {item.name}
-                            <span
-                              className={`absolute left-0 bottom-0 h-[2px] bg-[#a63f3f] transition-all duration-300 ${isActive ? "w-full" : "w-0"
-                                }`}
-                            />
-                          </>
-                        )}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            ) : (
+              // Navigate to auth when user is not logged in
+              <button
+                className="relative p-2"
+                onClick={() => handleUserLogin()}
+              >
+                <FaUser className="text-gray-700" />
+              </button>
             )}
           </div>
-        ))}
-      </nav>
-  )
+        </div>
+      </header>
+    </>
+  );
 }
-
-export default Navbar
