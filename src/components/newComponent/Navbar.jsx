@@ -55,7 +55,7 @@ function Navbar() {
   };
 
   return (
-    <nav className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 py-3 md:py-4 bg-white font-medium relative shadow-sm overflow-visible z-50">
+    <nav className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 py-3 md:py-4 bg-white font-medium relative shadow-sm overflow-visible">
 
       <NavLink
         to="/"

@@ -12,6 +12,44 @@ import { setUserInfo } from "../../redux/userSlice";
 import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { openPopup } from "./OauthPopup";
+
+
+const handleGoogleLoginPopup = async (onSuccess, onError) => {
+  const popup = openPopup('https://springboot-production-e29d.up.railway.app/oauth2/authorization/google', 'GoogleLogin');
+
+  const interval = setInterval(async () => {
+    try {
+      if (!popup || popup.closed) {
+        clearInterval(interval);
+        onError('Popup closed before authentication');
+      }
+
+      const popupUrl = popup.location.href;
+      if (popupUrl.includes(window.location.origin)) {
+        popup.close();
+        clearInterval(interval);
+
+        // Fetch current user after successful login
+        try {
+          const res = await fetch('https://springboot-production-e29d.up.railway.app/user/me', {
+            credentials: 'include'
+          });
+          const data = await res.json();
+          if (data.success) {
+            onSuccess(data.data);
+          } else {
+            onError('Failed to get user info');
+          }
+        } catch (err) {
+          onError('Failed to get user info');
+        }
+      }
+    } catch (err) {
+      // Cross-origin errors until redirect, ignore
+    }
+  }, 500);
+};
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -72,10 +110,23 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogleLogin=async()=>{
-    window.location.href = "https://springboot-production-e29d.up.railway.app/oauth2/authorization/google";
+  const handleGoogleLogin = () => {
+    handleGoogleLoginPopup(
+      (user) => {
+        dispatch(setUserInfo(user));
+        toast.success("Google login successful!");
+        navigate("/");
+      },
+      (err) => {
+        toast.error(err || "Google login failed!");
+      }
+    );
+  };
 
-  }
+//   const handleGoogleLogin=async()=>{
+//     window.location.href = "https://springboot-production-e29d.up.railway.app/oauth2/authorization/google";
+// // window.location.href = "http://localhost:8080/oauth2/authorization/google";
+//   }
 
   const baseBg = "bg-[#f8f7f4]";
   const baseText = "text-[#2c2c2c]";
