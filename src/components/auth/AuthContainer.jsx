@@ -16,8 +16,8 @@ import { openPopup } from "./OauthPopup";
 
 
 const handleGoogleLoginPopup = async (onSuccess, onError) => {
-  const popup = openPopup('https://springboot-production-e29d.up.railway.app/oauth2/authorization/google', 'GoogleLogin');
-
+  const popup = openPopup('https://springboot-production-e29d.up.railway.app/auth/google', 'GoogleLogin');
+  // const popup = openPopup('http://localhost:8080/auth/google', 'GoogleLogin');
   const interval = setInterval(async () => {
     try {
       if (!popup || popup.closed) {
@@ -32,7 +32,9 @@ const handleGoogleLoginPopup = async (onSuccess, onError) => {
 
         // Fetch current user after successful login
         try {
-          const res = await fetch('https://springboot-production-e29d.up.railway.app/user/me', {
+          const res = await fetch('https://springboot-production-e29d.up.railway.app/user/me'
+            // const res = await fetch('http://localhost:8080/user/me'
+            , {
             credentials: 'include'
           });
           const data = await res.json();
