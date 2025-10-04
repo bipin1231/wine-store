@@ -16,8 +16,8 @@ import { openPopup } from "./OauthPopup";
 
 
 const handleGoogleLoginPopup = async (onSuccess, onError) => {
-  const popup = openPopup('https://springboot-production-e29d.up.railway.app/auth/google', 'GoogleLogin');
-  // const popup = openPopup('http://localhost:8080/auth/google', 'GoogleLogin');
+  // const popup = openPopup('https://springboot-production-e29d.up.railway.app/auth/google', 'GoogleLogin');
+  const popup = openPopup('http://localhost:8080/auth/google', 'GoogleLogin');
   const interval = setInterval(async () => {
     try {
       if (!popup || popup.closed) {
@@ -112,23 +112,23 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    handleGoogleLoginPopup(
-      (user) => {
-        dispatch(setUserInfo(user));
-        toast.success("Google login successful!");
-        navigate("/");
-      },
-      (err) => {
-        toast.error(err || "Google login failed!");
-      }
-    );
-  };
+  // const handleGoogleLogin = () => {
+  //   handleGoogleLoginPopup(
+  //     (user) => {
+  //       dispatch(setUserInfo(user));
+  //       toast.success("Google login successful!");
+  //       navigate("/");
+  //     },
+  //     (err) => {
+  //       toast.error(err || "Google login failed!");
+  //     }
+  //   );
+  // };
 
-//   const handleGoogleLogin=async()=>{
-//     window.location.href = "https://springboot-production-e29d.up.railway.app/oauth2/authorization/google";
-// // window.location.href = "http://localhost:8080/oauth2/authorization/google";
-//   }
+  const handleGoogleLogin=async()=>{
+    window.location.href = "https://springboot-production-e29d.up.railway.app/auth/google";
+// window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  }
 
   const baseBg = "bg-[#f8f7f4]";
   const baseText = "text-[#2c2c2c]";
