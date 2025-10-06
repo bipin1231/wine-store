@@ -20,6 +20,7 @@ import PaymentLayout from '../layout/PaymentLayout.jsx';
 import CartCheckoutPage from '../newComponent/CartCheckoutPage.jsx';
 import CartPaymentPage from '../newComponent/CartPaymentPage.jsx';
 import PaymentSuccess from '../newComponent/payment/PaymentSuccess.jsx';
+import LoginSuccess from '../auth/LoginSuccess.jsx';
 export default function UserRoutes() {
   return (
     <Routes>
@@ -38,7 +39,7 @@ export default function UserRoutes() {
       {/* Auth Layout */}
       <Route element={<AuthLayout />}>
         <Route path="auth" element={<AuthContainer />} />
-
+  <Route path="login-success" element={<LoginSuccess />} />
       </Route>
       <Route element={<PaymentLayout />}>
         <Route path='checkout' element={<CheckoutPage />} />

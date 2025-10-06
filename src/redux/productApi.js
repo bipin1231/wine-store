@@ -19,6 +19,9 @@ export const productApi = createApi({
     getProductsById: builder.query({
       query: (productId) => `product/${productId}`,
     }),
+        getBestSellingProduct: builder.query({
+      query: () => `product/best-selling`,
+    }),
         getFilteredProducts: builder.query({
       query: (filteredData) => `product/filter-and-sort?categoryName=${filteredData?.categoryName}&sort=${filteredData?.sort}`,
     }),
@@ -114,6 +117,7 @@ export const { useGetProductsByNameQuery,
   useGetProductsBySizeAllQuery,
   useGetProductsQuery,
   useGetFilteredProductsQuery,
+  useGetBestSellingProductQuery,
   useAddProductMutation, useUpdateProductSizeMutation, useGetProductsByIdQuery, useUpdateProductInfoMutation,
   useDeleteProductVariantMutation,
   useUpdateProductImageMutation,
