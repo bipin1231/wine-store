@@ -10,6 +10,7 @@ import Category from '../pages/user/admin/Category'
 import ManageSizes from '../pages/user/admin/manageSize/ManageSizes'
 
 import AuthLayout from '../layout/AuthLayout.jsx';
+import AllOrderDetails from '../pages/user/admin/order/AllOrderDetails.jsx'
 function AdminRoutes() {
 
   return (
@@ -25,7 +26,7 @@ function AdminRoutes() {
     <Route path='category' element={<Category/>}/>
     <Route path='add-products' element={<AddProduct/>}/>
     <Route path='manage-sizes' element={<ManageSizes/>}/>
-   
+   <Route path='all-orders' element={<AllOrderDetails/>}/>
   
 
     

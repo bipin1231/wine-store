@@ -7,7 +7,7 @@ export const deliveryApi = createApi({
   baseQuery: baseQueryWithAuth, // adjust if needed
   tagTypes: ["DeliveryInfo"],
   endpoints: (builder) => ({
-    // ✅ Add Delivery Info
+    //  Add Delivery Info
     addDeliveryInfo: builder.mutation({
       query: ({ userId, deliveryData }) => ({
         url: `/delivery/${userId}`,

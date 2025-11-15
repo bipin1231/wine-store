@@ -53,6 +53,16 @@ export const orderApi = createApi({
       invalidatesTags: ["orderData"],
     }),
 
+    getAllOrderInfo: builder.query({
+      query: () => `order`,
+      providesTags: ["orderData"],
+    }),
+     getFilteredOrderInfo: builder.query({
+      query: (orderStatus) => `order/filter?orderStatus=${orderStatus}`,
+      providesTags: ["orderData"],
+      
+    }),
+
     //  Delete Delivery Info
     // deleteDeliveryInfo: builder.mutation({
     //   query: (userId) => ({
@@ -71,5 +81,8 @@ export const {
   useUpdateOrderStatusMutation,
   useUpdatePaymentStatusMutation,
   usePlaceCartOrderMutation,
+  useGetAllOrderInfoQuery,
+  useGetFilteredOrderInfoQuery,
+  
 
 } = orderApi;

@@ -134,6 +134,7 @@ const categoryOptions = categoriesData.flatMap(cat => {
         category: formData?.category?.label,
         description: formData?.description,
         cartonPrice: formData.cartonPrice,
+        alcohol:formData.alcohol,
         productSize
     
     };
@@ -143,6 +144,7 @@ console.log("data to send in backend",payload);
  data.append('name', payload.name);
 data.append('description', payload.description);
 data.append('category', payload.category); // not 'category'
+data.append('alcohol',payload.alcohol);
 
 productSize.forEach((variant, index) => {
   data.append(`productVariantRequestDto[${index}].stock`, variant.stock);
@@ -160,12 +162,12 @@ productSize.forEach((variant, index) => {
  
 
     try {
-      await addProduct(data).unwrap();
-      toast.success('Product added!');
-reset();
+     await addProduct(data).unwrap();
+     toast.success('Product added!');
+     reset();
 
     } catch(e) {
-console.log(e);
+      toast.error(e)
 
     } finally {
       setIsSubmitting(false);
@@ -186,6 +188,10 @@ console.log(e);
           <Label>Category</Label>
           <Controller name='category' control={control} rules={{ required: false }} render={({ field }) => <Select {...field} options={categoryOptions} placeholder='Select a category' />} />
           {errors.category && <ErrorMessage>Category is required</ErrorMessage>}
+        </FormGroup>
+          <FormGroup>
+          <Label>Alcohol Percentage</Label>
+          <Input {...register('alcohol')} placeholder='Enter Alcohol Percentage' />
         </FormGroup>
 
         {/* Prices */}

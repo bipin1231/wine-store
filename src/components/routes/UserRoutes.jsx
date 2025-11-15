@@ -21,6 +21,7 @@ import CartCheckoutPage from '../newComponent/CartCheckoutPage.jsx';
 import CartPaymentPage from '../newComponent/CartPaymentPage.jsx';
 import PaymentSuccess from '../newComponent/payment/PaymentSuccess.jsx';
 import LoginSuccess from '../auth/LoginSuccess.jsx';
+import Chat from '../../message/Chat.jsx';
 export default function UserRoutes() {
   return (
     <Routes>
@@ -35,6 +36,7 @@ export default function UserRoutes() {
 
         <Route path='product-page/:productId' element={<ProductPage />} />
 
+        <Route path='chat' element={<Chat />} />
       </Route>
       {/* Auth Layout */}
       <Route element={<AuthLayout />}>

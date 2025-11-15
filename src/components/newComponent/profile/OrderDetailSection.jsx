@@ -19,6 +19,7 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
 
+console.log(orders);
 
 
   if (!orders || orders.length === 0) {
@@ -38,7 +39,7 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
     return true;
 
   });
-  console.log(filteredOrders);
+
 
 
   const getOrderStatus = (order) => {
@@ -70,11 +71,12 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
   };
 
   const calculateOrderTotal = (order) => {
-    return order.orderItem.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return order.orderItem.reduce((total, item) => total + (item.sellingPrice * item.quantity), 0);
   };
 
   return (
     <div className="space-y-6">
+ 
       {/* Filter Tabs */}
       <div className="flex border-b border-gray-200">
         <button
@@ -99,8 +101,10 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
 
       {/* Orders List */}
       <div className="space-y-4">
-        {filteredOrders.map((order) => {
-          const status = getOrderStatus(order);
+        {orders.map((order) => {
+          console.log("order",order);
+          
+    
           const isExpanded = expandedOrder === order.id;
           const orderTotal = calculateOrderTotal(order);
 
@@ -111,11 +115,14 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
               animate={{ opacity: 1, y: 0 }}
               className="bg-white rounded-lg border border-gray-200 overflow-hidden"
             >
+  
               {/* Order Summary */}
-              <button
-                onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
-                className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+     
+              <div
+               onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+                className="w-full p-4 flex items-center justify-between text-left transition-colors"
               >
+            
                 <div className="flex items-center space-x-4">
                   <div className="p-2 bg-gray-100 rounded-lg">
                     <Receipt className="h-5 w-5 text-[#8b5a2b]" />
@@ -133,7 +140,7 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
                   <div className="text-right">
                     <p className="font-medium text-[#2c2c2c]">Rs.{order.totalPrice.toFixed(2)}</p>
                     <div className="flex items-center text-sm">
-                      {getStatusIcon(order.orderStatus)}
+                      {/* {getStatusIcon(order.orderStatus)} */}
                       <span className="ml-1">{order.orderStatus}</span>
                     </div>
                   </div>
@@ -144,7 +151,7 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
                     <ChevronDown className="h-5 w-5 text-gray-400" />
                   )}
                 </div>
-              </button>
+           </div>
 
               {/* Expanded Order Details */}
               <AnimatePresence>
@@ -167,7 +174,7 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
                                 <p className="font-medium text-[#2c2c2c]">{item.productName} {item.size}</p>
                                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                               </div>
-                              <p className="font-medium text-[#2c2c2c]">Rs.{(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="font-medium text-[#2c2c2c]">Rs.{(item.sellingPrice * item.quantity).toFixed(2)}</p>
                             </div>
                           ))}
                         </div>
@@ -223,11 +230,16 @@ const OrderDetailSection = ({ orders, handleOrderStatus,handleOrderPayment }) =>
                         {/* <button className="px-4 py-2 text-sm border border-[#8b5a2b] text-[#8b5a2b] rounded-full hover:bg-[#f8f7f4] transition-colors">
                           View Invoice
                         </button> */}
-                       <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity"
-                            onClick={() => handleOrderStatus()}
+                        {
+                          !order.orderStatus.includes("CANCEL") &&
+
+                          <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity"
+                            onClick={() => handleOrderStatus({orderId:order.id,orderStatus:"CANCELLED_BY_ADMIN"})}
                           >
                             Cancel
                           </button> 
+                        }
+                       
                           {!order.paymentType &&
                           <button className="px-4 py-2 text-sm bg-[#2c2c2c] text-white rounded-full hover:opacity-90 transition-opacity"
                               onClick={() => handleOrderPayment(order)}
