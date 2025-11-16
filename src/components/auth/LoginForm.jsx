@@ -64,7 +64,8 @@ const LoginForm = ({ onSubmit, showPassword,setShowPassword }) => {
             </button>
           </div>
         </div>
-        <div className="flex items-center justify-between">
+        {/* this is good only the logic is remaining */}
+        {/* <div className="flex items-center justify-between">
           <div className="flex items-center">
             <input
               {...register("rememberMe")}
@@ -78,7 +79,7 @@ const LoginForm = ({ onSubmit, showPassword,setShowPassword }) => {
               Forgot your password?
             </a>
           </div>
-        </div>
+        </div> */}
         <div>
           <motion.button
             type="submit"

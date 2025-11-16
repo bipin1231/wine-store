@@ -126,7 +126,7 @@ export default function AuthPage() {
   // };
 
   const handleGoogleLogin=async()=>{
-    window.location.href = "https://springboot-production-e29d.up.railway.app/auth/google";
+    window.location.href = "https://wine-store-alg7.onrender.com/auth/google";
 // window.location.href = "http://localhost:8080/oauth2/authorization/google";
   }
 

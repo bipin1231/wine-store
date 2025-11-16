@@ -79,7 +79,11 @@ export default function ProductPage() {
   };
 
   const addItemToCart = async () => {
-    if (!selectedSize) return alert("Please select a size.");
+    if (!selectedSize)
+      {
+      toast.error("Please select a size.");
+      return;
+      }
     if (!userId) {
       toast.error("Please Login Before Adding To Cart");
       return;
@@ -105,8 +109,16 @@ export default function ProductPage() {
   };
 
   const buyNow = async () => {
-    if (!selectedSize) return alert("Please select a size.");
-    if (!userId) return alert("Please login to proceed with purchase.");
+    if (!selectedSize)
+      {
+      toast.error("Please select a size.");
+      return;
+      }
+    if (!userId) {
+      toast.error("Please login to proceed with purchase.");
+      return;
+    }
+
 
 
 
@@ -488,7 +500,7 @@ export default function ProductPage() {
                 </Button>
                 <Button
                   className="w-full bg-[#2c2c2c] text-white py-6 rounded-xl font-medium text-lg hover:opacity-90"
-                  onClick={buyNow}
+                  onClick={()=>buyNow}
                 >
                   Buy Now
                 </Button>
