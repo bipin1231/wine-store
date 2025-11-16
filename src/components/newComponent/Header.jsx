@@ -99,7 +99,7 @@ export default function HomePage() {
 
   const handleProfile = () => {
     // Add your profile navigation logic here
-    console.log("Going to profile...");
+  
     navigate('/profile');
     setShowUserDropdown(false);
   }
@@ -240,14 +240,15 @@ export default function HomePage() {
               <FaSearch />
             </button>
 
-            <button className="relative p-2">
+{/* whishlist button this is okay */}
+            {/* <button className="relative p-2">
               <FaHeart className="text-gray-700" />
               {wishlist.length > 0 && (
                 <span className="absolute top-0 right-0 bg-[#a63f3f] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                   {wishlist.length}
                 </span>
               )}
-            </button>
+            </button> */}
 
             {/* Updated User Button Section */}
             <div className="relative user-dropdown-container">
