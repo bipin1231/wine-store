@@ -8,6 +8,10 @@ import { Toaster } from 'react-hot-toast';
 import store, { persistor } from './redux/store';
 import App from './App';
 import './index.css';
+import { registerSW } from 'virtual:pwa-register';
+
+// Register PWA service worker
+registerSW({ immediate: true });
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
