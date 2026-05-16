@@ -67,4 +67,25 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@nextui-org') || id.includes('framer-motion') || id.includes('lucide-react') || id.includes('react-icons')) {
+              return 'vendor-ui';
+            }
+            if (id.includes('recharts')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('react') || id.includes('redux')) {
+              return 'vendor-core';
+            }
+            return 'vendor'; // all other node_modules
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000, // Optional: increase warning limit if needed
+  },
 });
